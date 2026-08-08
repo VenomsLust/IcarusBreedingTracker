@@ -7,9 +7,9 @@ import {
   applySaveAnimal,
   applySaveProspect,
   applySaveSpecies,
-  emptyAppData,
   parseAppData
 } from '@shared/validation'
+import { seedAppData } from '@shared/seedData'
 import { downloadText, readFileAsText } from '../lib/fileIO'
 
 interface AppDataContextValue {
@@ -32,7 +32,7 @@ interface AppDataContextValue {
 const AppDataContext = createContext<AppDataContextValue | null>(null)
 
 export function AppDataProvider({ children }: { children: ReactNode }): JSX.Element {
-  const [data, setData] = useState<AppData>(emptyAppData)
+  const [data, setData] = useState<AppData>(seedAppData)
   const [dirty, setDirty] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [fileName, setFileName] = useState<string | null>(null)
@@ -102,7 +102,7 @@ export function AppDataProvider({ children }: { children: ReactNode }): JSX.Elem
   }
 
   function newDatabase(): void {
-    setData(emptyAppData())
+    setData(seedAppData())
     setDirty(false)
     setFileName(null)
     setError(null)
