@@ -39,8 +39,11 @@ export interface OffspringEstimate {
 /**
  * Ceiling estimate for a candidate mate pair. Icarus inherits each stat as
  * one of the two parents' values (never averaged), so the best-possible
- * outcome per stat is the higher parent's value; bloodline and phenotype are
- * likewise whichever parent's trait scores better under this species' formula.
+ * outcome per stat is whichever parent's value scores higher under this
+ * species' weight for that stat — the higher value for a positively-weighted
+ * stat, but the lower value for a dump stat (negative weight); bloodline and
+ * phenotype are likewise whichever parent's trait scores better under this
+ * species' formula.
  */
 export function estimateOffspringCeiling(
   a: Animal,
@@ -48,7 +51,11 @@ export function estimateOffspringCeiling(
   species: SpeciesDefinition
 ): OffspringEstimate {
   const stats = Object.fromEntries(
-    STAT_NAMES.map((stat) => [stat, Math.max(a.stats[stat], b.stats[stat])])
+    STAT_NAMES.map((stat) => {
+      const weight = species.scoreConfig.statWeights[stat]
+      const best = weight < 0 ? Math.min(a.stats[stat], b.stats[stat]) : Math.max(a.stats[stat], b.stats[stat])
+      return [stat, best]
+    })
   ) as Stats
 
   const bloodlineBonusA = species.scoreConfig.bloodlineBonuses[a.bloodline] ?? 0
