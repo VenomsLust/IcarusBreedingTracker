@@ -65,7 +65,7 @@ export default function Sidebar({
 
       <h2 className="section-spacer">Species</h2>
       <ul className="species-list">
-        {species.map((s) => (
+        {[...species].sort((a, b) => a.name.localeCompare(b.name)).map((s) => (
           <li key={s.id} className={s.id === selectedSpeciesId ? 'active' : ''}>
             <button className="species-name" onClick={() => onSelectSpecies(s.id)}>
               {s.name}
