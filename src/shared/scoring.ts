@@ -29,11 +29,6 @@ export interface OffspringEstimate {
   bloodline: Bloodline
   phenotype: string | null
   score: number
-  // Isolated components so pairs can be ranked by a single dimension
-  // (Genotype/Bloodline/Phenotype) instead of only the combined Score.
-  genotypeScore: number
-  bloodlineBonus: number
-  phenotypeBonus: number
 }
 
 /**
@@ -61,26 +56,16 @@ export function estimateOffspringCeiling(
   const bloodlineBonusA = species.scoreConfig.bloodlineBonuses[a.bloodline] ?? 0
   const bloodlineBonusB = species.scoreConfig.bloodlineBonuses[b.bloodline] ?? 0
   const bloodline = bloodlineBonusA >= bloodlineBonusB ? a.bloodline : b.bloodline
-  const bloodlineBonus = Math.max(bloodlineBonusA, bloodlineBonusB)
 
   const phenotypeBonusA = species.scoreConfig.phenotypeBonuses[phenotypeKey(a.phenotype)] ?? 0
   const phenotypeBonusB = species.scoreConfig.phenotypeBonuses[phenotypeKey(b.phenotype)] ?? 0
   const phenotype = phenotypeBonusA >= phenotypeBonusB ? a.phenotype : b.phenotype
-  const phenotypeBonus = Math.max(phenotypeBonusA, phenotypeBonusB)
-
-  const genotypeScore = STAT_NAMES.reduce(
-    (sum, stat) => sum + species.scoreConfig.statWeights[stat] * stats[stat],
-    species.scoreConfig.constant
-  )
 
   return {
     stats,
     bloodline,
     phenotype,
-    score: computeScore(stats, bloodline, phenotype, species.scoreConfig),
-    genotypeScore,
-    bloodlineBonus,
-    phenotypeBonus
+    score: computeScore(stats, bloodline, phenotype, species.scoreConfig)
   }
 }
 
@@ -117,21 +102,4 @@ export function rankMatePairs(
   }
 
   return pairs.sort((x, y) => y.estimate.score - x.estimate.score)
-}
-
-export type MateCategory = 'genotype' | 'bloodline' | 'phenotype'
-
-const CATEGORY_KEY: Record<MateCategory, keyof OffspringEstimate> = {
-  genotype: 'genotypeScore',
-  bloodline: 'bloodlineBonus',
-  phenotype: 'phenotypeBonus'
-}
-
-/** Ranks pairs by a single dimension, breaking ties with the overall Score. */
-export function sortMatePairsByCategory(pairs: MatePair[], category: MateCategory): MatePair[] {
-  const key = CATEGORY_KEY[category]
-  return [...pairs].sort((x, y) => {
-    const diff = (y.estimate[key] as number) - (x.estimate[key] as number)
-    return diff !== 0 ? diff : y.estimate.score - x.estimate.score
-  })
 }
