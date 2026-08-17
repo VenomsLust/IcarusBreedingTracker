@@ -1,25 +1,86 @@
-import type { Animal, AppData, Prospect, SpeciesDefinition } from './types'
+import { v4 as uuid } from 'uuid'
+import {
+  BUILTIN_CLASSIFICATION_NAMES,
+  defaultScoreConfig,
+  type Animal,
+  type AppData,
+  type Classification,
+  type Prospect,
+  type SpeciesDefinition
+} from './types'
 
-const SCHEMA_VERSION = 1
+const SCHEMA_VERSION = 2
+
+// Save files from before Classifications existed had each Species carry its
+// own scoreConfig directly. Map the two known "gameplay role" species onto
+// their closest named Classification; anything else keeps its own
+// Classification named after the species so no scoring data is lost.
+const LEGACY_CLASSIFICATION_NAME_BY_SPECIES: Record<string, string> = {
+  Wolves: 'Combat Pet',
+  Buffalos: 'Pack Animal',
+  Moas: 'Swift Mount'
+}
 
 export class ValidationError extends Error {}
 
 export function emptyAppData(): AppData {
-  return { schemaVersion: SCHEMA_VERSION, species: [], prospects: [], animals: [] }
+  return { schemaVersion: SCHEMA_VERSION, species: [], classifications: [], prospects: [], animals: [] }
+}
+
+interface LegacySpecies {
+  id: string
+  name: string
+  scoreConfig?: unknown
+}
+
+/**
+ * Converts a pre-Classification save (schemaVersion 1: each Species carries
+ * its own scoreConfig) into the current shape by turning each Species'
+ * scoreConfig into a standalone Classification.
+ */
+function migrateLegacySpeciesScoreConfigs(data: AppData): AppData {
+  const classifications: Classification[] = []
+  const species: SpeciesDefinition[] = (data.species as unknown as LegacySpecies[]).map((s) => {
+    const name = LEGACY_CLASSIFICATION_NAME_BY_SPECIES[s.name] ?? s.name
+    const classification: Classification = {
+      id: uuid(),
+      name,
+      scoreConfig: {
+        ...defaultScoreConfig(),
+        ...(s.scoreConfig as object),
+        phenotypeBonuses: (s.scoreConfig as { phenotypeBonuses?: Record<string, number> })?.phenotypeBonuses ?? {}
+      }
+    }
+    classifications.push(classification)
+    return { id: s.id, name: s.name, classificationId: classification.id }
+  })
+
+  for (const name of BUILTIN_CLASSIFICATION_NAMES) {
+    if (!classifications.some((c) => c.name === name)) {
+      classifications.push({ id: uuid(), name, scoreConfig: defaultScoreConfig() })
+    }
+  }
+
+  return { ...data, species, classifications }
 }
 
 // Backfills fields added after older save files were written, so files
-// saved before the `prospects`/`prospectId`/`phenotypeBonuses` fields existed
-// still load cleanly.
+// saved before the `prospects`/`prospectId`/`phenotypeBonuses`/`classifications`
+// fields existed still load cleanly.
 function normalize(data: AppData): AppData {
+  const isLegacyShape =
+    !Array.isArray(data.classifications) || (data.species as unknown as LegacySpecies[]).some((s) => 'scoreConfig' in s)
+  const migrated = isLegacyShape ? migrateLegacySpeciesScoreConfigs(data) : data
+
   return {
-    ...data,
-    prospects: data.prospects ?? [],
-    species: data.species.map((s) => ({
-      ...s,
-      scoreConfig: { ...s.scoreConfig, phenotypeBonuses: s.scoreConfig.phenotypeBonuses ?? {} }
+    ...migrated,
+    schemaVersion: SCHEMA_VERSION,
+    prospects: migrated.prospects ?? [],
+    classifications: migrated.classifications.map((c) => ({
+      ...c,
+      scoreConfig: { ...c.scoreConfig, phenotypeBonuses: c.scoreConfig.phenotypeBonuses ?? {} }
     })),
-    animals: data.animals.map((a) => ({ ...a, prospectId: a.prospectId ?? null }))
+    animals: migrated.animals.map((a) => ({ ...a, prospectId: a.prospectId ?? null }))
   }
 }
 
@@ -45,6 +106,12 @@ function assertSpeciesExists(data: AppData, speciesId: string): SpeciesDefinitio
   const species = data.species.find((s) => s.id === speciesId)
   if (!species) throw new ValidationError(`Species ${speciesId} does not exist`)
   return species
+}
+
+function assertClassificationExists(data: AppData, classificationId: string): Classification {
+  const classification = data.classifications.find((c) => c.id === classificationId)
+  if (!classification) throw new ValidationError(`Classification ${classificationId} does not exist`)
+  return classification
 }
 
 function assertStatsValid(stats: Animal['stats']): void {
@@ -97,6 +164,7 @@ export function applyDeleteAnimal(data: AppData, animalId: string): AppData {
 
 export function applySaveSpecies(data: AppData, species: SpeciesDefinition): AppData {
   if (!species.name.trim()) throw new ValidationError('Species name is required')
+  assertClassificationExists(data, species.classificationId)
 
   return { ...data, species: [...data.species.filter((s) => s.id !== species.id), species] }
 }
@@ -107,6 +175,23 @@ export function applyDeleteSpecies(data: AppData, speciesId: string): AppData {
     throw new ValidationError('Cannot delete a species that still has animals')
   }
   return { ...data, species: data.species.filter((s) => s.id !== speciesId) }
+}
+
+export function applySaveClassification(data: AppData, classification: Classification): AppData {
+  if (!classification.name.trim()) throw new ValidationError('Classification name is required')
+
+  return {
+    ...data,
+    classifications: [...data.classifications.filter((c) => c.id !== classification.id), classification]
+  }
+}
+
+export function applyDeleteClassification(data: AppData, classificationId: string): AppData {
+  const stillUsed = data.species.some((s) => s.classificationId === classificationId)
+  if (stillUsed) {
+    throw new ValidationError('Cannot delete a Classification that is still assigned to a Species')
+  }
+  return { ...data, classifications: data.classifications.filter((c) => c.id !== classificationId) }
 }
 
 export function applySaveProspect(data: AppData, prospect: Prospect): AppData {

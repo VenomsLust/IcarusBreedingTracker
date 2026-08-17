@@ -1,10 +1,16 @@
 import { v4 as uuid } from 'uuid'
-import { defaultScoreConfig, type AppData, type ScoreConfig } from './types'
+import {
+  BUILTIN_CLASSIFICATION_NAMES,
+  defaultScoreConfig,
+  type AppData,
+  type Classification,
+  type ScoreConfig
+} from './types'
 
 // Matches the score formula the old Electron app's xlsx importer hardcoded
 // for Wolves: Instinct is a dump stat (largely irrelevant on a combat
 // companion), and Alpha/Savage bloodlines get a flat bonus for their rarity.
-const WOLVES_SCORE_CONFIG: ScoreConfig = {
+const COMBAT_PET_SCORE_CONFIG: ScoreConfig = {
   statWeights: {
     vigor: 1,
     fitness: 1,
@@ -19,17 +25,28 @@ const WOLVES_SCORE_CONFIG: ScoreConfig = {
   phenotypeBonuses: {}
 }
 
-const SEED_SPECIES_NAMES = ['Wolves', 'Buffalos', 'Moas'] as const
+const BUILTIN_SCORE_CONFIGS: Partial<Record<(typeof BUILTIN_CLASSIFICATION_NAMES)[number], ScoreConfig>> = {
+  'Combat Pet': COMBAT_PET_SCORE_CONFIG
+}
 
 export function seedAppData(): AppData {
+  const classifications: Classification[] = BUILTIN_CLASSIFICATION_NAMES.map((name) => ({
+    id: uuid(),
+    name,
+    scoreConfig: BUILTIN_SCORE_CONFIGS[name] ?? defaultScoreConfig()
+  }))
+  const classificationIdByName = (name: (typeof BUILTIN_CLASSIFICATION_NAMES)[number]): string =>
+    classifications.find((c) => c.name === name)!.id
+
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     prospects: [],
     animals: [],
-    species: SEED_SPECIES_NAMES.map((name) => ({
-      id: uuid(),
-      name,
-      scoreConfig: name === 'Wolves' ? WOLVES_SCORE_CONFIG : defaultScoreConfig()
-    }))
+    classifications,
+    species: [
+      { id: uuid(), name: 'Wolves', classificationId: classificationIdByName('Combat Pet') },
+      { id: uuid(), name: 'Buffalos', classificationId: classificationIdByName('Pack Animal') },
+      { id: uuid(), name: 'Moas', classificationId: classificationIdByName('Swift Mount') }
+    ]
   }
 }

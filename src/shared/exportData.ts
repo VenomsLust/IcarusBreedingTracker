@@ -1,4 +1,4 @@
-import { STAT_NAMES, type Animal, type SpeciesDefinition } from './types'
+import { STAT_NAMES, type Animal, type ScoreConfig } from './types'
 import { computeScore, computeTotal } from './scoring'
 
 export interface ExportAnimalRow {
@@ -17,7 +17,7 @@ export interface ExportAnimalRow {
 
 export function buildExportRows(
   animals: Animal[],
-  species: SpeciesDefinition,
+  scoreConfig: ScoreConfig,
   animalNameById: Map<string, string>,
   prospectNameById: Map<string, string>
 ): ExportAnimalRow[] {
@@ -32,7 +32,7 @@ export function buildExportRows(
     prospect: a.prospectId ? prospectNameById.get(a.prospectId) ?? '' : 'Unassigned',
     stats: { ...a.stats },
     total: computeTotal(a.stats),
-    score: computeScore(a.stats, a.bloodline, a.phenotype, species.scoreConfig)
+    score: computeScore(a.stats, a.bloodline, a.phenotype, scoreConfig)
   }))
 }
 

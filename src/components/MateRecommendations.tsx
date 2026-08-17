@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import type { SpeciesDefinition } from '@shared/types'
-import { STAT_NAMES } from '@shared/types'
+import { STAT_NAMES, defaultScoreConfig } from '@shared/types'
 import { rankMatePairs } from '@shared/scoring'
 import { BLOODLINE_DESCRIPTIONS, STAT_DESCRIPTIONS } from '@shared/descriptions'
 import { useAppData } from '../context/AppDataContext'
@@ -22,10 +22,12 @@ export default function MateRecommendations({ species, prospectId }: Props): JSX
   const animals = data.animals.filter(
     (a) => a.speciesId === species.id && a.prospectId === prospectId && (a.status ?? 'active') === 'active'
   )
+  const scoreConfig =
+    data.classifications.find((c) => c.id === species.classificationId)?.scoreConfig ?? defaultScoreConfig()
 
   const pairs = useMemo(
-    () => rankMatePairs(animals, species, { forAnimalId: focusAnimalId || undefined }),
-    [animals, species, focusAnimalId]
+    () => rankMatePairs(animals, species.id, scoreConfig, { forAnimalId: focusAnimalId || undefined }),
+    [animals, species.id, scoreConfig, focusAnimalId]
   )
 
   if (!prospectId) {

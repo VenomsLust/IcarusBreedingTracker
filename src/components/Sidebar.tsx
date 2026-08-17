@@ -1,4 +1,4 @@
-import type { Animal, Prospect, SpeciesDefinition } from '@shared/types'
+import type { Animal, Classification, Prospect, SpeciesDefinition } from '@shared/types'
 
 interface Props {
   species: SpeciesDefinition[]
@@ -6,6 +6,9 @@ interface Props {
   onSelectSpecies: (id: string) => void
   onAddSpecies: () => void
   onEditSpecies: (id: string) => void
+  classifications: Classification[]
+  onAddClassification: () => void
+  onEditClassification: (id: string) => void
   prospects: Prospect[]
   selectedProspectId: string | null
   onSelectProspect: (id: string | null) => void
@@ -24,6 +27,9 @@ export default function Sidebar({
   onSelectSpecies,
   onAddSpecies,
   onEditSpecies,
+  classifications,
+  onAddClassification,
+  onEditClassification,
   prospects,
   selectedProspectId,
   onSelectProspect,
@@ -69,7 +75,7 @@ export default function Sidebar({
             </span>
             <button
               className="icon-button"
-              title={`Edit ${s.name} scoring`}
+              title={`Edit ${s.name}`}
               onClick={() => onEditSpecies(s.id)}
             >
               ✎
@@ -79,6 +85,23 @@ export default function Sidebar({
       </ul>
       <button className="add-species" onClick={onAddSpecies}>
         + Add Species
+      </button>
+
+      <h2 className="section-spacer">Classifications</h2>
+      <ul className="species-list">
+        {classifications.map((c) => (
+          <li key={c.id}>
+            <button className="species-name" onClick={() => onEditClassification(c.id)}>
+              {c.name}
+            </button>
+            <span className="count-badge" title="Species using this Classification">
+              {species.filter((s) => s.classificationId === c.id).length}
+            </span>
+          </li>
+        ))}
+      </ul>
+      <button className="add-species" onClick={onAddClassification}>
+        + Add Classification
       </button>
     </aside>
   )

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import type { Animal, SpeciesDefinition } from '@shared/types'
-import { STAT_NAMES } from '@shared/types'
+import { STAT_NAMES, defaultScoreConfig } from '@shared/types'
 import { computeScore, computeTotal } from '@shared/scoring'
 import { buildExportRows, toExportJson, toExportXml } from '@shared/exportData'
 import { BLOODLINE_DESCRIPTIONS, STAT_DESCRIPTIONS } from '@shared/descriptions'
@@ -28,6 +28,8 @@ export default function AnimalTable({ species, prospectId, onEditAnimal }: Props
   )
   const animalNameById = new Map(data.animals.map((a) => [a.id, a.name]))
   const prospectNameById = new Map(data.prospects.map((p) => [p.id, p.name]))
+  const scoreConfig =
+    data.classifications.find((c) => c.id === species.classificationId)?.scoreConfig ?? defaultScoreConfig()
 
   const rows = useMemo(() => {
     return animalsBySpecies
@@ -38,7 +40,7 @@ export default function AnimalTable({ species, prospectId, onEditAnimal }: Props
         animal: a,
         status: a.status ?? 'active',
         total: computeTotal(a.stats),
-        score: computeScore(a.stats, a.bloodline, a.phenotype, species.scoreConfig),
+        score: computeScore(a.stats, a.bloodline, a.phenotype, scoreConfig),
         prospectName: a.prospectId ? prospectNameById.get(a.prospectId) ?? '—' : 'Unassigned'
       }))
       .sort((x, y) => {
@@ -54,7 +56,7 @@ export default function AnimalTable({ species, prospectId, onEditAnimal }: Props
         return cmp * sortDir
       })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [animalsBySpecies, nameFilter, sexFilter, showInactive, sortKey, sortDir, species.scoreConfig])
+  }, [animalsBySpecies, nameFilter, sexFilter, showInactive, sortKey, sortDir, scoreConfig])
 
   function toggleSort(key: SortKey): void {
     if (sortKey === key) {
@@ -82,7 +84,7 @@ export default function AnimalTable({ species, prospectId, onEditAnimal }: Props
       : 'All Prospects'
     const exportRows = buildExportRows(
       rows.map((r) => r.animal),
-      species,
+      scoreConfig,
       animalNameById,
       prospectNameById
     )

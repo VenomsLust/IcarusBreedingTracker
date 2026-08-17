@@ -1,12 +1,4 @@
-import {
-  STAT_NAMES,
-  phenotypeKey,
-  type Animal,
-  type Bloodline,
-  type ScoreConfig,
-  type SpeciesDefinition,
-  type Stats
-} from './types'
+import { STAT_NAMES, phenotypeKey, type Animal, type Bloodline, type ScoreConfig, type Stats } from './types'
 
 export function computeTotal(stats: Stats): number {
   return STAT_NAMES.reduce((sum, stat) => sum + stats[stat], 0)
@@ -35,37 +27,33 @@ export interface OffspringEstimate {
  * Ceiling estimate for a candidate mate pair. Icarus inherits each stat as
  * one of the two parents' values (never averaged), so the best-possible
  * outcome per stat is whichever parent's value scores higher under this
- * species' weight for that stat — the higher value for a positively-weighted
- * stat, but the lower value for a dump stat (negative weight); bloodline and
- * phenotype are likewise whichever parent's trait scores better under this
- * species' formula.
+ * Classification's weight for that stat — the higher value for a
+ * positively-weighted stat, but the lower value for a dump stat (negative
+ * weight); bloodline and phenotype are likewise whichever parent's trait
+ * scores better under this Classification's formula.
  */
-export function estimateOffspringCeiling(
-  a: Animal,
-  b: Animal,
-  species: SpeciesDefinition
-): OffspringEstimate {
+export function estimateOffspringCeiling(a: Animal, b: Animal, scoreConfig: ScoreConfig): OffspringEstimate {
   const stats = Object.fromEntries(
     STAT_NAMES.map((stat) => {
-      const weight = species.scoreConfig.statWeights[stat]
+      const weight = scoreConfig.statWeights[stat]
       const best = weight < 0 ? Math.min(a.stats[stat], b.stats[stat]) : Math.max(a.stats[stat], b.stats[stat])
       return [stat, best]
     })
   ) as Stats
 
-  const bloodlineBonusA = species.scoreConfig.bloodlineBonuses[a.bloodline] ?? 0
-  const bloodlineBonusB = species.scoreConfig.bloodlineBonuses[b.bloodline] ?? 0
+  const bloodlineBonusA = scoreConfig.bloodlineBonuses[a.bloodline] ?? 0
+  const bloodlineBonusB = scoreConfig.bloodlineBonuses[b.bloodline] ?? 0
   const bloodline = bloodlineBonusA >= bloodlineBonusB ? a.bloodline : b.bloodline
 
-  const phenotypeBonusA = species.scoreConfig.phenotypeBonuses[phenotypeKey(a.phenotype)] ?? 0
-  const phenotypeBonusB = species.scoreConfig.phenotypeBonuses[phenotypeKey(b.phenotype)] ?? 0
+  const phenotypeBonusA = scoreConfig.phenotypeBonuses[phenotypeKey(a.phenotype)] ?? 0
+  const phenotypeBonusB = scoreConfig.phenotypeBonuses[phenotypeKey(b.phenotype)] ?? 0
   const phenotype = phenotypeBonusA >= phenotypeBonusB ? a.phenotype : b.phenotype
 
   return {
     stats,
     bloodline,
     phenotype,
-    score: computeScore(stats, bloodline, phenotype, species.scoreConfig)
+    score: computeScore(stats, bloodline, phenotype, scoreConfig)
   }
 }
 
@@ -77,12 +65,13 @@ export interface MatePair {
 
 export function rankMatePairs(
   animals: Animal[],
-  species: SpeciesDefinition,
+  speciesId: string,
+  scoreConfig: ScoreConfig,
   options?: { forAnimalId?: string }
 ): MatePair[] {
   // Retired and deceased animals aren't candidates for breeding.
   const pool = animals.filter((animal) => {
-    if (animal.speciesId !== species.id) return false
+    if (animal.speciesId !== speciesId) return false
     if (animal.status === 'deceased') return false
     if (animal.status === 'retired') return false
     return true
@@ -97,7 +86,7 @@ export function rankMatePairs(
       if (options?.forAnimalId && male.id !== options.forAnimalId && female.id !== options.forAnimalId) {
         continue
       }
-      pairs.push({ male, female, estimate: estimateOffspringCeiling(male, female, species) })
+      pairs.push({ male, female, estimate: estimateOffspringCeiling(male, female, scoreConfig) })
     }
   }
 

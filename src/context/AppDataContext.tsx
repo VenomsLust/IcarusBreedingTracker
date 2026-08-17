@@ -1,10 +1,12 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
-import type { Animal, AppData, Prospect, SpeciesDefinition } from '@shared/types'
+import type { Animal, AppData, Classification, Prospect, SpeciesDefinition } from '@shared/types'
 import {
   applyDeleteAnimal,
+  applyDeleteClassification,
   applyDeleteProspect,
   applyDeleteSpecies,
   applySaveAnimal,
+  applySaveClassification,
   applySaveProspect,
   applySaveSpecies,
   parseAppData
@@ -21,6 +23,8 @@ interface AppDataContextValue {
   deleteAnimal: (animalId: string) => Promise<void>
   saveSpecies: (species: SpeciesDefinition) => Promise<void>
   deleteSpecies: (speciesId: string) => Promise<void>
+  saveClassification: (classification: Classification) => Promise<void>
+  deleteClassification: (classificationId: string) => Promise<void>
   saveProspect: (prospect: Prospect) => Promise<void>
   deleteProspect: (prospectId: string) => Promise<void>
   loadFromFile: (file: File) => Promise<void>
@@ -67,6 +71,16 @@ export function AppDataProvider({ children }: { children: ReactNode }): JSX.Elem
 
   async function deleteSpecies(speciesId: string): Promise<void> {
     setData(applyDeleteSpecies(data, speciesId))
+    setDirty(true)
+  }
+
+  async function saveClassification(classification: Classification): Promise<void> {
+    setData(applySaveClassification(data, classification))
+    setDirty(true)
+  }
+
+  async function deleteClassification(classificationId: string): Promise<void> {
+    setData(applyDeleteClassification(data, classificationId))
     setDirty(true)
   }
 
@@ -121,6 +135,8 @@ export function AppDataProvider({ children }: { children: ReactNode }): JSX.Elem
     deleteAnimal,
     saveSpecies,
     deleteSpecies,
+    saveClassification,
+    deleteClassification,
     saveProspect,
     deleteProspect,
     loadFromFile,

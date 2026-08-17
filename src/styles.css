@@ -367,7 +367,8 @@ table.animal-table tbody tr.inactive-row {
 }
 
 .animal-form,
-.species-editor {
+.species-editor,
+.classification-editor {
   max-width: 640px;
 }
 
@@ -381,7 +382,8 @@ table.animal-table tbody tr.inactive-row {
 }
 
 .animal-form label,
-.species-editor label {
+.species-editor label,
+.classification-editor label {
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -392,7 +394,9 @@ table.animal-table tbody tr.inactive-row {
 .animal-form input,
 .animal-form select,
 .species-editor input,
-.species-editor select {
+.species-editor select,
+.classification-editor input,
+.classification-editor select {
   background: #222327;
   border: 1px solid #333;
   color: #e6e6e6;

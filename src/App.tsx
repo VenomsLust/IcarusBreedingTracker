@@ -5,12 +5,14 @@ import Sidebar from './components/Sidebar'
 import AnimalTable from './components/AnimalTable'
 import AnimalForm from './components/AnimalForm'
 import SpeciesEditor from './components/SpeciesEditor'
+import ClassificationEditor from './components/ClassificationEditor'
 import ProspectEditor from './components/ProspectEditor'
 import MateRecommendations from './components/MateRecommendations'
 
 type Tab = 'animals' | 'recommendations'
 type AnimalFormState = { mode: 'add' } | { mode: 'edit'; animalId: string } | null
 type SpeciesEditorState = { mode: 'add' } | { mode: 'edit'; speciesId: string } | null
+type ClassificationEditorState = { mode: 'add' } | { mode: 'edit'; classificationId: string } | null
 type ProspectEditorState = { mode: 'add' } | { mode: 'edit'; prospectId: string } | null
 
 export default function App(): JSX.Element {
@@ -20,6 +22,7 @@ export default function App(): JSX.Element {
   const [tab, setTab] = useState<Tab>('animals')
   const [animalForm, setAnimalForm] = useState<AnimalFormState>(null)
   const [speciesEditor, setSpeciesEditor] = useState<SpeciesEditorState>(null)
+  const [classificationEditor, setClassificationEditor] = useState<ClassificationEditorState>(null)
   const [prospectEditor, setProspectEditor] = useState<ProspectEditorState>(null)
 
   useEffect(() => {
@@ -51,6 +54,9 @@ export default function App(): JSX.Element {
           onSelectSpecies={selectSpecies}
           onAddSpecies={() => setSpeciesEditor({ mode: 'add' })}
           onEditSpecies={(id) => setSpeciesEditor({ mode: 'edit', speciesId: id })}
+          classifications={data.classifications}
+          onAddClassification={() => setClassificationEditor({ mode: 'add' })}
+          onEditClassification={(id) => setClassificationEditor({ mode: 'edit', classificationId: id })}
           prospects={data.prospects}
           selectedProspectId={selectedProspectId}
           onSelectProspect={setSelectedProspectId}
@@ -116,6 +122,14 @@ export default function App(): JSX.Element {
             setSpeciesEditor(null)
             selectSpecies(id)
           }}
+        />
+      )}
+
+      {classificationEditor && (
+        <ClassificationEditor
+          classificationId={classificationEditor.mode === 'edit' ? classificationEditor.classificationId : null}
+          onClose={() => setClassificationEditor(null)}
+          onSaved={() => setClassificationEditor(null)}
         />
       )}
 

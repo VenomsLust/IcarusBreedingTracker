@@ -46,10 +46,16 @@ export function phenotypeKey(phenotype: string | null): string {
   return phenotype ?? ''
 }
 
-export interface SpeciesDefinition {
+export interface Classification {
   id: string
   name: string
   scoreConfig: ScoreConfig
+}
+
+export interface SpeciesDefinition {
+  id: string
+  name: string
+  classificationId: string
 }
 
 export interface Prospect {
@@ -74,9 +80,21 @@ export interface Animal {
 export interface AppData {
   schemaVersion: number
   species: SpeciesDefinition[]
+  classifications: Classification[]
   prospects: Prospect[]
   animals: Animal[]
 }
+
+// Starter set covering the common Icarus breeding roles. Users can rename,
+// edit, delete, or add their own beyond these.
+export const BUILTIN_CLASSIFICATION_NAMES = [
+  'Combat Pet',
+  'Combat Mount',
+  'Swift Mount',
+  'Pack Animal',
+  'Ranch Animal',
+  'House Pet'
+] as const
 
 export function defaultScoreConfig(): ScoreConfig {
   return {
