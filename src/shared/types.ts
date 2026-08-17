@@ -113,6 +113,37 @@ export function defaultScoreConfig(): ScoreConfig {
   }
 }
 
+// Icarus mechanics don't allow every stat to max out on one animal — one stat
+// has to be sacrificed (weight -1) so the rest can reach 10.
+export function dumpStatScoreConfig(dumpStat: StatName): ScoreConfig {
+  return {
+    ...defaultScoreConfig(),
+    statWeights: Object.fromEntries(STAT_NAMES.map((s) => [s, s === dumpStat ? -1 : 1])) as Record<StatName, number>
+  }
+}
+
+// Default dump stat + bonuses for each built-in Classification, reasoned from
+// each role (see STAT_DESCRIPTIONS in descriptions.ts): Instinct governs mount
+// cargo / wool-egg-milk output, so it's dead weight on anything that isn't a
+// utility mount or farm animal. Shared by seedData.ts (fresh installs) and
+// validation.ts (backfilling built-ins missing from a migrated save) so the
+// two can't drift apart.
+export const BUILTIN_CLASSIFICATION_SCORE_CONFIGS: Record<(typeof BUILTIN_CLASSIFICATION_NAMES)[number], ScoreConfig> = {
+  // Instinct (utility output) is irrelevant on a non-mount combat companion.
+  // Alpha/Savage are the rare, combat-favoring bloodlines.
+  'Combat Pet': { ...dumpStatScoreConfig('instinct'), constant: 10, bloodlineBonuses: { Alpha: 8, Savage: 4 } },
+  // Same reasoning as Combat Pet — cargo/utility isn't the point of a mount built to fight.
+  'Combat Mount': dumpStatScoreConfig('instinct'),
+  // A pure speed mount isn't meant to fight or haul heavy cargo.
+  'Swift Mount': dumpStatScoreConfig('physique'),
+  // Kept out of danger while hauling, so health matters least.
+  'Pack Animal': dumpStatScoreConfig('vigor'),
+  // Not a fighter or a mount — melee damage/carry capacity matters least next to Instinct, its actual output.
+  'Ranch Animal': dumpStatScoreConfig('physique'),
+  // No utility role at all, so Instinct is the clearest dump stat.
+  'House Pet': dumpStatScoreConfig('instinct')
+}
+
 export function emptyStats(): Stats {
   return {
     vigor: 0,

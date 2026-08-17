@@ -1,6 +1,7 @@
 import { v4 as uuid } from 'uuid'
 import {
   BUILTIN_CLASSIFICATION_NAMES,
+  BUILTIN_CLASSIFICATION_SCORE_CONFIGS,
   defaultScoreConfig,
   type Animal,
   type AppData,
@@ -57,7 +58,7 @@ function migrateLegacySpeciesScoreConfigs(data: AppData): AppData {
 
   for (const name of BUILTIN_CLASSIFICATION_NAMES) {
     if (!classifications.some((c) => c.name === name)) {
-      classifications.push({ id: uuid(), name, scoreConfig: defaultScoreConfig() })
+      classifications.push({ id: uuid(), name, scoreConfig: BUILTIN_CLASSIFICATION_SCORE_CONFIGS[name] })
     }
   }
 
