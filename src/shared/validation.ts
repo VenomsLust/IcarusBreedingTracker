@@ -151,14 +151,19 @@ export function applySaveAnimal(data: AppData, animal: Animal): AppData {
 }
 
 export function applyDeleteAnimal(data: AppData, animalId: string): AppData {
+  return applyDeleteAnimals(data, [animalId])
+}
+
+export function applyDeleteAnimals(data: AppData, animalIds: string[]): AppData {
+  const idSet = new Set(animalIds)
   return {
     ...data,
     animals: data.animals
-      .filter((a) => a.id !== animalId)
+      .filter((a) => !idSet.has(a.id))
       .map((a) => ({
         ...a,
-        sireId: a.sireId === animalId ? null : a.sireId,
-        damId: a.damId === animalId ? null : a.damId
+        sireId: a.sireId && idSet.has(a.sireId) ? null : a.sireId,
+        damId: a.damId && idSet.has(a.damId) ? null : a.damId
       }))
   }
 }

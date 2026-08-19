@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import type { Animal, AppData, Classification, Prospect, SpeciesDefinition } from '@shared/types'
 import {
   applyDeleteAnimal,
+  applyDeleteAnimals,
   applyDeleteClassification,
   applyDeleteProspect,
   applyDeleteSpecies,
@@ -21,6 +22,7 @@ interface AppDataContextValue {
   fileName: string | null
   saveAnimal: (animal: Animal) => Promise<void>
   deleteAnimal: (animalId: string) => Promise<void>
+  deleteAnimals: (animalIds: string[]) => Promise<void>
   saveSpecies: (species: SpeciesDefinition) => Promise<void>
   deleteSpecies: (speciesId: string) => Promise<void>
   saveClassification: (classification: Classification) => Promise<void>
@@ -61,6 +63,11 @@ export function AppDataProvider({ children }: { children: ReactNode }): JSX.Elem
 
   async function deleteAnimal(animalId: string): Promise<void> {
     setData(applyDeleteAnimal(data, animalId))
+    setDirty(true)
+  }
+
+  async function deleteAnimals(animalIds: string[]): Promise<void> {
+    setData(applyDeleteAnimals(data, animalIds))
     setDirty(true)
   }
 
@@ -133,6 +140,7 @@ export function AppDataProvider({ children }: { children: ReactNode }): JSX.Elem
     fileName,
     saveAnimal,
     deleteAnimal,
+    deleteAnimals,
     saveSpecies,
     deleteSpecies,
     saveClassification,

@@ -8,6 +8,7 @@ import SpeciesEditor from './components/SpeciesEditor'
 import ClassificationEditor from './components/ClassificationEditor'
 import ProspectEditor from './components/ProspectEditor'
 import MateRecommendations from './components/MateRecommendations'
+import CleanupDialog from './components/CleanupDialog'
 
 type Tab = 'animals' | 'recommendations'
 type AnimalFormState = { mode: 'add' } | { mode: 'edit'; animalId: string } | null
@@ -24,6 +25,7 @@ export default function App(): JSX.Element {
   const [speciesEditor, setSpeciesEditor] = useState<SpeciesEditorState>(null)
   const [classificationEditor, setClassificationEditor] = useState<ClassificationEditorState>(null)
   const [prospectEditor, setProspectEditor] = useState<ProspectEditorState>(null)
+  const [cleanupOpen, setCleanupOpen] = useState(false)
 
   useEffect(() => {
     if (selectedSpeciesId && data.species.some((s) => s.id === selectedSpeciesId)) return
@@ -63,6 +65,7 @@ export default function App(): JSX.Element {
           onAddProspect={() => setProspectEditor({ mode: 'add' })}
           onEditProspect={(id) => setProspectEditor({ mode: 'edit', prospectId: id })}
           animals={data.animals}
+          onOpenCleanup={() => setCleanupOpen(true)}
         />
 
         <main className="main-content">
@@ -142,6 +145,10 @@ export default function App(): JSX.Element {
             setSelectedProspectId(id)
           }}
         />
+      )}
+
+      {cleanupOpen && (
+        <CleanupDialog animals={data.animals} species={data.species} onClose={() => setCleanupOpen(false)} />
       )}
     </div>
   )

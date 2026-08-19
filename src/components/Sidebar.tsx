@@ -1,4 +1,5 @@
 import type { Animal, Classification, Prospect, SpeciesDefinition } from '@shared/types'
+import { findRemovableDeceased } from '@shared/cleanup'
 
 interface Props {
   species: SpeciesDefinition[]
@@ -15,6 +16,7 @@ interface Props {
   onAddProspect: () => void
   onEditProspect: (id: string) => void
   animals: Animal[]
+  onOpenCleanup: () => void
 }
 
 function isActive(animal: Animal): boolean {
@@ -35,8 +37,11 @@ export default function Sidebar({
   onSelectProspect,
   onAddProspect,
   onEditProspect,
-  animals
+  animals,
+  onOpenCleanup
 }: Props): JSX.Element {
+  const cleanupCount = findRemovableDeceased(animals).length
+
   return (
     <aside className="sidebar">
       <h2>Prospect</h2>
@@ -102,6 +107,11 @@ export default function Sidebar({
       </ul>
       <button className="add-species" onClick={onAddClassification}>
         + Add Classification
+      </button>
+
+      <button className="add-species cleanup-button" onClick={onOpenCleanup}>
+        🧹 Clean Up Data
+        {cleanupCount > 0 && <span className="count-badge">{cleanupCount}</span>}
       </button>
     </aside>
   )
