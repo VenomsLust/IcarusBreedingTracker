@@ -1,0 +1,1304 @@
+{
+  "schemaVersion": 2,
+  "species": [
+    {
+      "id": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Wolves",
+      "classificationId": "62b3b02e-3f9d-485d-95ee-97be54151d42"
+    },
+    {
+      "id": "8412777e-9260-41ff-9e49-84e777e424ee",
+      "name": "Moas",
+      "classificationId": "35dd7619-106e-40a5-8519-84765c4eabc6"
+    },
+    {
+      "id": "bf5c3d18-beb8-4347-9153-93c68a1e1009",
+      "name": "Buffalos",
+      "classificationId": "4abb764b-0045-401d-a129-b0fd7382651a"
+    }
+  ],
+  "animals": [
+    {
+      "id": "d81fc455-abd0-4e7f-9e78-67d91cd45532",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Lady",
+      "sex": "Female",
+      "sireId": "c35369ec-3240-41f7-8414-91f6cb851e7a",
+      "damId": "872d7f44-0755-469b-9c4f-4b7fdc7cc71f",
+      "bloodline": "Savage",
+      "phenotype": null,
+      "stats": {
+        "vigor": 6,
+        "fitness": 4,
+        "physique": 3,
+        "reflex": 7,
+        "toughness": 4,
+        "adaptation": 6,
+        "instinct": 0
+      },
+      "prospectId": "fa9533d9-1411-4275-b3b4-e5f72c044e58"
+    },
+    {
+      "id": "675daa13-91e6-40cf-8aab-dea32738a0e0",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Nicklas",
+      "sex": "Male",
+      "sireId": "c35369ec-3240-41f7-8414-91f6cb851e7a",
+      "damId": "d81fc455-abd0-4e7f-9e78-67d91cd45532",
+      "bloodline": "Savage",
+      "phenotype": null,
+      "stats": {
+        "vigor": 4,
+        "fitness": 5,
+        "physique": 5,
+        "reflex": 3,
+        "toughness": 4,
+        "adaptation": 7,
+        "instinct": 2
+      },
+      "prospectId": "fa9533d9-1411-4275-b3b4-e5f72c044e58"
+    },
+    {
+      "id": "e078e476-8845-47b6-aa23-015addf62e27",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Tiffany",
+      "sex": "Female",
+      "sireId": "8e50f3a4-4302-45e0-9479-bd57700ae98e",
+      "damId": "c5e67354-d5fe-45fb-8775-4633ea41cd1f",
+      "bloodline": "Savage",
+      "phenotype": null,
+      "stats": {
+        "vigor": 4,
+        "fitness": 6,
+        "physique": 1,
+        "reflex": 5,
+        "toughness": 5,
+        "adaptation": 6,
+        "instinct": 3
+      },
+      "prospectId": "fa9533d9-1411-4275-b3b4-e5f72c044e58"
+    },
+    {
+      "id": "c35369ec-3240-41f7-8414-91f6cb851e7a",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Bob",
+      "sex": "Male",
+      "sireId": "8e50f3a4-4302-45e0-9479-bd57700ae98e",
+      "damId": "e078e476-8845-47b6-aa23-015addf62e27",
+      "bloodline": "Savage",
+      "phenotype": null,
+      "stats": {
+        "vigor": 4,
+        "fitness": 5,
+        "physique": 3,
+        "reflex": 3,
+        "toughness": 5,
+        "adaptation": 7,
+        "instinct": 3
+      },
+      "prospectId": "fa9533d9-1411-4275-b3b4-e5f72c044e58"
+    },
+    {
+      "id": "872d7f44-0755-469b-9c4f-4b7fdc7cc71f",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Dagonet",
+      "sex": "Female",
+      "sireId": "8e50f3a4-4302-45e0-9479-bd57700ae98e",
+      "damId": "de15d881-fd56-45ce-a694-67111874900e",
+      "bloodline": "Resolute",
+      "phenotype": "5",
+      "stats": {
+        "vigor": 8,
+        "fitness": 1,
+        "physique": 5,
+        "reflex": 6,
+        "toughness": 3,
+        "adaptation": 5,
+        "instinct": 1
+      },
+      "prospectId": "fa9533d9-1411-4275-b3b4-e5f72c044e58"
+    },
+    {
+      "id": "e156fde8-a628-46cb-9180-751bcf868664",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Marlene",
+      "sex": "Female",
+      "sireId": "c35369ec-3240-41f7-8414-91f6cb851e7a",
+      "damId": "e078e476-8845-47b6-aa23-015addf62e27",
+      "bloodline": "Wild",
+      "phenotype": null,
+      "stats": {
+        "vigor": 3,
+        "fitness": 3,
+        "physique": 1,
+        "reflex": 2,
+        "toughness": 9,
+        "adaptation": 10,
+        "instinct": 2
+      },
+      "prospectId": "fa9533d9-1411-4275-b3b4-e5f72c044e58"
+    },
+    {
+      "id": "ebc38a69-0877-4884-889f-38bcba482523",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Tala",
+      "sex": "Female",
+      "sireId": "c35369ec-3240-41f7-8414-91f6cb851e7a",
+      "damId": "872d7f44-0755-469b-9c4f-4b7fdc7cc71f",
+      "bloodline": "Resolute",
+      "phenotype": null,
+      "stats": {
+        "vigor": 4,
+        "fitness": 3,
+        "physique": 3,
+        "reflex": 3,
+        "toughness": 9,
+        "adaptation": 6,
+        "instinct": 2
+      },
+      "prospectId": "fa9533d9-1411-4275-b3b4-e5f72c044e58"
+    },
+    {
+      "id": "64df7c52-fe61-4c9e-8a31-258ac2e5466e",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Boromir",
+      "sex": "Male",
+      "sireId": "c35369ec-3240-41f7-8414-91f6cb851e7a",
+      "damId": "e156fde8-a628-46cb-9180-751bcf868664",
+      "bloodline": "Savage",
+      "phenotype": null,
+      "stats": {
+        "vigor": 3,
+        "fitness": 3,
+        "physique": 4,
+        "reflex": 3,
+        "toughness": 8,
+        "adaptation": 5,
+        "instinct": 4
+      },
+      "prospectId": "fa9533d9-1411-4275-b3b4-e5f72c044e58"
+    },
+    {
+      "id": "8e50f3a4-4302-45e0-9479-bd57700ae98e",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Bedivere",
+      "sex": "Male",
+      "sireId": null,
+      "damId": null,
+      "bloodline": "Savage",
+      "phenotype": null,
+      "stats": {
+        "vigor": 6,
+        "fitness": 3,
+        "physique": 3,
+        "reflex": 4,
+        "toughness": 4,
+        "adaptation": 5,
+        "instinct": 4
+      },
+      "prospectId": "fa9533d9-1411-4275-b3b4-e5f72c044e58"
+    },
+    {
+      "id": "c5e67354-d5fe-45fb-8775-4633ea41cd1f",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Amy",
+      "sex": "Female",
+      "sireId": "8e50f3a4-4302-45e0-9479-bd57700ae98e",
+      "damId": "25d7c24e-b905-4393-a2fc-e883fe8cd508",
+      "bloodline": "Savage",
+      "phenotype": null,
+      "stats": {
+        "vigor": 5,
+        "fitness": 3,
+        "physique": 2,
+        "reflex": 7,
+        "toughness": 4,
+        "adaptation": 4,
+        "instinct": 5
+      },
+      "prospectId": "fa9533d9-1411-4275-b3b4-e5f72c044e58"
+    },
+    {
+      "id": "25d7c24e-b905-4393-a2fc-e883fe8cd508",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Gawain",
+      "sex": "Female",
+      "sireId": "8e50f3a4-4302-45e0-9479-bd57700ae98e",
+      "damId": "3f1d6237-120d-4f09-8e21-c43ba0369548",
+      "bloodline": "Resolute",
+      "phenotype": null,
+      "stats": {
+        "vigor": 7,
+        "fitness": 2,
+        "physique": 5,
+        "reflex": 4,
+        "toughness": 6,
+        "adaptation": 3,
+        "instinct": 3
+      },
+      "prospectId": "fa9533d9-1411-4275-b3b4-e5f72c044e58"
+    },
+    {
+      "id": "22edfbf1-705f-4608-a187-2216c1257a07",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Galahad",
+      "sex": "Male",
+      "sireId": null,
+      "damId": null,
+      "bloodline": "Wild",
+      "phenotype": null,
+      "stats": {
+        "vigor": 6,
+        "fitness": 5,
+        "physique": 2,
+        "reflex": 3,
+        "toughness": 6,
+        "adaptation": 3,
+        "instinct": 1
+      },
+      "prospectId": "fa9533d9-1411-4275-b3b4-e5f72c044e58"
+    },
+    {
+      "id": "bac67959-dcfa-43c1-8ee5-2c1d355ac8db",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Agravain",
+      "sex": "Female",
+      "sireId": null,
+      "damId": null,
+      "bloodline": "Resolute",
+      "phenotype": null,
+      "stats": {
+        "vigor": 4,
+        "fitness": 3,
+        "physique": 5,
+        "reflex": 5,
+        "toughness": 6,
+        "adaptation": 3,
+        "instinct": 4
+      },
+      "prospectId": "fa9533d9-1411-4275-b3b4-e5f72c044e58"
+    },
+    {
+      "id": "3f1d6237-120d-4f09-8e21-c43ba0369548",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Tammy",
+      "sex": "Female",
+      "sireId": "8e50f3a4-4302-45e0-9479-bd57700ae98e",
+      "damId": "bac67959-dcfa-43c1-8ee5-2c1d355ac8db",
+      "bloodline": "Wild",
+      "phenotype": null,
+      "stats": {
+        "vigor": 4,
+        "fitness": 3,
+        "physique": 3,
+        "reflex": 6,
+        "toughness": 5,
+        "adaptation": 5,
+        "instinct": 4
+      },
+      "prospectId": "fa9533d9-1411-4275-b3b4-e5f72c044e58"
+    },
+    {
+      "id": "3416a677-b862-4306-9b4e-2585ce26de18",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Frank",
+      "sex": "Male",
+      "sireId": "e2cec805-0423-482f-af10-dfd8be437469",
+      "damId": "872d7f44-0755-469b-9c4f-4b7fdc7cc71f",
+      "bloodline": "Brave",
+      "phenotype": "5",
+      "stats": {
+        "vigor": 5,
+        "fitness": 3,
+        "physique": 2,
+        "reflex": 3,
+        "toughness": 5,
+        "adaptation": 6,
+        "instinct": 3
+      },
+      "prospectId": "fa9533d9-1411-4275-b3b4-e5f72c044e58"
+    },
+    {
+      "id": "e2cec805-0423-482f-af10-dfd8be437469",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Gareth",
+      "sex": "Male",
+      "sireId": null,
+      "damId": null,
+      "bloodline": "Brave",
+      "phenotype": "5",
+      "stats": {
+        "vigor": 4,
+        "fitness": 3,
+        "physique": 3,
+        "reflex": 3,
+        "toughness": 5,
+        "adaptation": 5,
+        "instinct": 2
+      },
+      "prospectId": "fa9533d9-1411-4275-b3b4-e5f72c044e58"
+    },
+    {
+      "id": "de15d881-fd56-45ce-a694-67111874900e",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Lamorak",
+      "sex": "Female",
+      "sireId": "e2cec805-0423-482f-af10-dfd8be437469",
+      "damId": "bac67959-dcfa-43c1-8ee5-2c1d355ac8db",
+      "bloodline": "Resolute",
+      "phenotype": "5",
+      "stats": {
+        "vigor": 8,
+        "fitness": 2,
+        "physique": 5,
+        "reflex": 2,
+        "toughness": 6,
+        "adaptation": 1,
+        "instinct": 4
+      },
+      "prospectId": "fa9533d9-1411-4275-b3b4-e5f72c044e58"
+    },
+    {
+      "id": "31d51a36-c08a-4c9e-a783-d58507e70c8e",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Merril",
+      "sex": "Female",
+      "sireId": null,
+      "damId": null,
+      "bloodline": "Timid",
+      "phenotype": "6",
+      "stats": {
+        "vigor": 3,
+        "fitness": 3,
+        "physique": 3,
+        "reflex": 5,
+        "toughness": 3,
+        "adaptation": 2,
+        "instinct": 7
+      },
+      "prospectId": "fa9533d9-1411-4275-b3b4-e5f72c044e58"
+    },
+    {
+      "id": "57b0b21a-f6ac-4839-acd7-73d669c999e8",
+      "speciesId": "bf5c3d18-beb8-4347-9153-93c68a1e1009",
+      "name": "Beef",
+      "sex": "Male",
+      "sireId": null,
+      "damId": null,
+      "bloodline": "Careful",
+      "phenotype": null,
+      "stats": {
+        "vigor": 4,
+        "fitness": 3,
+        "physique": 6,
+        "reflex": 2,
+        "toughness": 3,
+        "adaptation": 1,
+        "instinct": 3
+      },
+      "prospectId": "fa9533d9-1411-4275-b3b4-e5f72c044e58"
+    },
+    {
+      "id": "56c26d6f-b673-4886-8839-c517f4e29d96",
+      "speciesId": "8412777e-9260-41ff-9e49-84e777e424ee",
+      "name": "Ranginui",
+      "sex": "Male",
+      "sireId": null,
+      "damId": null,
+      "bloodline": "Wild",
+      "phenotype": null,
+      "stats": {
+        "vigor": 3,
+        "fitness": 6,
+        "physique": 3,
+        "reflex": 1,
+        "toughness": 3,
+        "adaptation": 4,
+        "instinct": 7
+      },
+      "prospectId": "fa9533d9-1411-4275-b3b4-e5f72c044e58"
+    },
+    {
+      "id": "5375995a-73f8-4ad7-b02f-01d731d9f3ff",
+      "speciesId": "8412777e-9260-41ff-9e49-84e777e424ee",
+      "name": "Maui",
+      "sex": "Female",
+      "sireId": null,
+      "damId": null,
+      "bloodline": "Careful",
+      "phenotype": null,
+      "stats": {
+        "vigor": 3,
+        "fitness": 2,
+        "physique": 4,
+        "reflex": 2,
+        "toughness": 3,
+        "adaptation": 3,
+        "instinct": 4
+      },
+      "prospectId": "fa9533d9-1411-4275-b3b4-e5f72c044e58"
+    },
+    {
+      "id": "88dc22ac-d3d9-400d-a76e-dccc2523b78b",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Gina",
+      "sex": "Female",
+      "sireId": null,
+      "damId": null,
+      "bloodline": "Timid",
+      "phenotype": "4",
+      "stats": {
+        "vigor": 3,
+        "fitness": 2,
+        "physique": 2,
+        "reflex": 6,
+        "toughness": 7,
+        "adaptation": 5,
+        "instinct": 3
+      },
+      "status": "active",
+      "prospectId": "38bda230-799b-4326-b7c1-4d3049c41093"
+    },
+    {
+      "id": "0df0620c-0b6f-4fba-9e12-0ee490c66903",
+      "speciesId": "bf5c3d18-beb8-4347-9153-93c68a1e1009",
+      "name": "Athena",
+      "sex": "Female",
+      "sireId": null,
+      "damId": null,
+      "bloodline": "Stout",
+      "phenotype": null,
+      "stats": {
+        "vigor": 3,
+        "fitness": 4,
+        "physique": 5,
+        "reflex": 6,
+        "toughness": 7,
+        "adaptation": 3,
+        "instinct": 3
+      },
+      "status": "active",
+      "prospectId": "38bda230-799b-4326-b7c1-4d3049c41093"
+    },
+    {
+      "id": "f475f1e7-e32d-40c6-8f23-a516c91e06a8",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Merril",
+      "sex": "Female",
+      "sireId": "9dd5a115-e560-4b10-83b6-789f7aecadb5",
+      "damId": null,
+      "bloodline": "Savage",
+      "phenotype": "3",
+      "stats": {
+        "vigor": 0,
+        "fitness": 4,
+        "physique": 3,
+        "reflex": 3,
+        "toughness": 5,
+        "adaptation": 3,
+        "instinct": 6
+      },
+      "status": "deceased",
+      "prospectId": "38bda230-799b-4326-b7c1-4d3049c41093"
+    },
+    {
+      "id": "2e009270-7469-465d-9418-0ca54a9333af",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Veronica",
+      "sex": "Female",
+      "sireId": "c35369ec-3240-41f7-8414-91f6cb851e7a",
+      "damId": null,
+      "bloodline": "Resolute",
+      "phenotype": "2",
+      "stats": {
+        "vigor": 5,
+        "fitness": 2,
+        "physique": 4,
+        "reflex": 5,
+        "toughness": 4,
+        "adaptation": 5,
+        "instinct": 7
+      },
+      "status": "deceased",
+      "prospectId": "38bda230-799b-4326-b7c1-4d3049c41093"
+    },
+    {
+      "id": "455acad6-bffc-4465-80c9-6a5c3fb2d058",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Cathy",
+      "sex": "Female",
+      "sireId": "9dd5a115-e560-4b10-83b6-789f7aecadb5",
+      "damId": "31d51a36-c08a-4c9e-a783-d58507e70c8e",
+      "bloodline": "Savage",
+      "phenotype": "3",
+      "stats": {
+        "vigor": 1,
+        "fitness": 5,
+        "physique": 3,
+        "reflex": 5,
+        "toughness": 3,
+        "adaptation": 3,
+        "instinct": 3
+      },
+      "status": "deceased",
+      "prospectId": "38bda230-799b-4326-b7c1-4d3049c41093"
+    },
+    {
+      "id": "b04dc88d-f4aa-4d79-9e78-deb368f64ca9",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Bedivere",
+      "sex": "Male",
+      "sireId": null,
+      "damId": null,
+      "bloodline": "Brave",
+      "phenotype": null,
+      "stats": {
+        "vigor": 3,
+        "fitness": 5,
+        "physique": 7,
+        "reflex": 3,
+        "toughness": 6,
+        "adaptation": 3,
+        "instinct": 4
+      },
+      "status": "deceased",
+      "prospectId": "38bda230-799b-4326-b7c1-4d3049c41093"
+    },
+    {
+      "id": "fd8e2bfa-d293-45e6-8018-d6127d53219f",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Agravain",
+      "sex": "Male",
+      "sireId": null,
+      "damId": null,
+      "bloodline": "Wild",
+      "phenotype": null,
+      "stats": {
+        "vigor": 5,
+        "fitness": 3,
+        "physique": 2,
+        "reflex": 6,
+        "toughness": 6,
+        "adaptation": 3,
+        "instinct": 2
+      },
+      "status": "deceased",
+      "prospectId": "38bda230-799b-4326-b7c1-4d3049c41093"
+    },
+    {
+      "id": "9dd5a115-e560-4b10-83b6-789f7aecadb5",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Norman",
+      "sex": "Male",
+      "sireId": null,
+      "damId": null,
+      "bloodline": "Alpha",
+      "phenotype": "3",
+      "stats": {
+        "vigor": 4,
+        "fitness": 3,
+        "physique": 3,
+        "reflex": 2,
+        "toughness": 3,
+        "adaptation": 3,
+        "instinct": 4
+      },
+      "status": "deceased",
+      "prospectId": "38bda230-799b-4326-b7c1-4d3049c41093"
+    },
+    {
+      "id": "4c97deb8-63b1-49a8-95dd-c6adb3ed3ae8",
+      "speciesId": "bf5c3d18-beb8-4347-9153-93c68a1e1009",
+      "name": "Socrates",
+      "sex": "Male",
+      "sireId": "b11ce805-54dd-4aa9-894b-d07d60175161",
+      "damId": "0df0620c-0b6f-4fba-9e12-0ee490c66903",
+      "bloodline": "Bold",
+      "phenotype": null,
+      "stats": {
+        "vigor": 2,
+        "fitness": 8,
+        "physique": 6,
+        "reflex": 3,
+        "toughness": 3,
+        "adaptation": 5,
+        "instinct": 2
+      },
+      "status": "active",
+      "prospectId": "38bda230-799b-4326-b7c1-4d3049c41093"
+    },
+    {
+      "id": "89313098-bf6d-46da-8476-16160cdae584",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Aimee",
+      "sex": "Female",
+      "sireId": null,
+      "damId": null,
+      "bloodline": "Stout",
+      "phenotype": "5",
+      "stats": {
+        "vigor": 6,
+        "fitness": 4,
+        "physique": 6,
+        "reflex": 2,
+        "toughness": 6,
+        "adaptation": 4,
+        "instinct": 4
+      },
+      "status": "deceased",
+      "prospectId": "38bda230-799b-4326-b7c1-4d3049c41093"
+    },
+    {
+      "id": "81d35c57-77b7-47bc-b870-20181228b87f",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Gareth",
+      "sex": "Male",
+      "sireId": null,
+      "damId": null,
+      "bloodline": "Hardy",
+      "phenotype": null,
+      "stats": {
+        "vigor": 5,
+        "fitness": 5,
+        "physique": 5,
+        "reflex": 4,
+        "toughness": 4,
+        "adaptation": 5,
+        "instinct": 4
+      },
+      "status": "deceased",
+      "prospectId": "38bda230-799b-4326-b7c1-4d3049c41093"
+    },
+    {
+      "id": "d0b62ab1-930e-4de2-86c5-60b1fb73618a",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Darlene",
+      "sex": "Female",
+      "sireId": "9dd5a115-e560-4b10-83b6-789f7aecadb5",
+      "damId": "8c831ab4-4bb3-4044-995e-de028cbc5b09",
+      "bloodline": "Wild",
+      "phenotype": null,
+      "stats": {
+        "vigor": 10,
+        "fitness": 4,
+        "physique": 3,
+        "reflex": 2,
+        "toughness": 7,
+        "adaptation": 2,
+        "instinct": 3
+      },
+      "status": "deceased",
+      "prospectId": "38bda230-799b-4326-b7c1-4d3049c41093"
+    },
+    {
+      "id": "b1f38b76-4924-4472-b72d-eaf778e4de5b",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Perry",
+      "sex": "Male",
+      "sireId": "a6d330f2-4dfd-4b9d-8a8b-68993bca2f67",
+      "damId": "96d916e2-cfa9-4060-a46d-f82ac74b3fe6",
+      "bloodline": "Alpha",
+      "phenotype": null,
+      "stats": {
+        "vigor": 3,
+        "fitness": 4,
+        "physique": 10,
+        "reflex": 10,
+        "toughness": 7,
+        "adaptation": 5,
+        "instinct": 4
+      },
+      "status": "active",
+      "prospectId": "38bda230-799b-4326-b7c1-4d3049c41093"
+    },
+    {
+      "id": "b11ce805-54dd-4aa9-894b-d07d60175161",
+      "speciesId": "bf5c3d18-beb8-4347-9153-93c68a1e1009",
+      "name": "Pythagoras",
+      "sex": "Male",
+      "sireId": null,
+      "damId": null,
+      "bloodline": "Bold",
+      "phenotype": null,
+      "stats": {
+        "vigor": 2,
+        "fitness": 7,
+        "physique": 3,
+        "reflex": 2,
+        "toughness": 2,
+        "adaptation": 2,
+        "instinct": 3
+      },
+      "status": "deceased",
+      "prospectId": "38bda230-799b-4326-b7c1-4d3049c41093"
+    },
+    {
+      "id": "8aa48574-b411-4709-8538-4ed6c4735c16",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Drago",
+      "sex": "Male",
+      "sireId": null,
+      "damId": null,
+      "bloodline": "Wild",
+      "phenotype": null,
+      "stats": {
+        "vigor": 3,
+        "fitness": 7,
+        "physique": 4,
+        "reflex": 5,
+        "toughness": 6,
+        "adaptation": 6,
+        "instinct": 6
+      },
+      "status": "deceased",
+      "prospectId": "38bda230-799b-4326-b7c1-4d3049c41093"
+    },
+    {
+      "id": "833d3e4d-b151-4767-a6f9-73409a3b1f48",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Rhonda",
+      "sex": "Female",
+      "sireId": "b1f38b76-4924-4472-b72d-eaf778e4de5b",
+      "damId": "96d916e2-cfa9-4060-a46d-f82ac74b3fe6",
+      "bloodline": "Alpha",
+      "phenotype": "5",
+      "stats": {
+        "vigor": 4,
+        "fitness": 6,
+        "physique": 10,
+        "reflex": 7,
+        "toughness": 5,
+        "adaptation": 6,
+        "instinct": 4
+      },
+      "status": "active",
+      "prospectId": "38bda230-799b-4326-b7c1-4d3049c41093"
+    },
+    {
+      "id": "6b0c60ec-fa5b-405b-9840-9056ee837642",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Sinade",
+      "sex": "Female",
+      "sireId": "b1f38b76-4924-4472-b72d-eaf778e4de5b",
+      "damId": "96d916e2-cfa9-4060-a46d-f82ac74b3fe6",
+      "bloodline": "Alpha",
+      "phenotype": "5",
+      "stats": {
+        "vigor": 4,
+        "fitness": 6,
+        "physique": 10,
+        "reflex": 7,
+        "toughness": 5,
+        "adaptation": 6,
+        "instinct": 4
+      },
+      "status": "active",
+      "prospectId": "38bda230-799b-4326-b7c1-4d3049c41093"
+    },
+    {
+      "id": "cd7824e7-356c-4d5d-ae41-e2bb824583ac",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Bob",
+      "sex": "Male",
+      "sireId": null,
+      "damId": null,
+      "bloodline": "Resolute",
+      "phenotype": "2",
+      "stats": {
+        "vigor": 7,
+        "fitness": 6,
+        "physique": 7,
+        "reflex": 7,
+        "toughness": 7,
+        "adaptation": 2,
+        "instinct": 3
+      },
+      "status": "deceased",
+      "prospectId": "38bda230-799b-4326-b7c1-4d3049c41093"
+    },
+    {
+      "id": "a3041fca-e02e-4b0c-888c-e086a9d0c5c9",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Manfred",
+      "sex": "Male",
+      "sireId": "9dd5a115-e560-4b10-83b6-789f7aecadb5",
+      "damId": "8c831ab4-4bb3-4044-995e-de028cbc5b09",
+      "bloodline": "Alpha",
+      "phenotype": "5",
+      "stats": {
+        "vigor": 7,
+        "fitness": 5,
+        "physique": 3,
+        "reflex": 3,
+        "toughness": 7,
+        "adaptation": 6,
+        "instinct": 4
+      },
+      "status": "deceased",
+      "prospectId": "38bda230-799b-4326-b7c1-4d3049c41093"
+    },
+    {
+      "id": "f18a27b9-b9f8-4040-8fed-5c27b6da04f8",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Alice",
+      "sex": "Female",
+      "sireId": "f2bc787a-6c6b-4ed1-8d72-228dfd660f2d",
+      "damId": "8c831ab4-4bb3-4044-995e-de028cbc5b09",
+      "bloodline": "Wild",
+      "phenotype": null,
+      "stats": {
+        "vigor": 6,
+        "fitness": 10,
+        "physique": 10,
+        "reflex": 1,
+        "toughness": 6,
+        "adaptation": 9,
+        "instinct": 0
+      },
+      "status": "active",
+      "prospectId": "38bda230-799b-4326-b7c1-4d3049c41093"
+    },
+    {
+      "id": "1e67ea8f-633f-41d2-8c88-f4937dd26f3b",
+      "speciesId": "8412777e-9260-41ff-9e49-84e777e424ee",
+      "name": "Jason",
+      "sex": "Male",
+      "sireId": null,
+      "damId": null,
+      "bloodline": "Bold",
+      "phenotype": null,
+      "stats": {
+        "vigor": 2,
+        "fitness": 4,
+        "physique": 3,
+        "reflex": 6,
+        "toughness": 5,
+        "adaptation": 5,
+        "instinct": 7
+      },
+      "status": "active",
+      "prospectId": "38bda230-799b-4326-b7c1-4d3049c41093"
+    },
+    {
+      "id": "0e861a09-d9ee-4fdc-bf7e-d564d74c26c8",
+      "speciesId": "8412777e-9260-41ff-9e49-84e777e424ee",
+      "name": "Tangaroa",
+      "sex": "Female",
+      "sireId": null,
+      "damId": null,
+      "bloodline": "Timid",
+      "phenotype": null,
+      "stats": {
+        "vigor": 5,
+        "fitness": 5,
+        "physique": 4,
+        "reflex": 3,
+        "toughness": 3,
+        "adaptation": 3,
+        "instinct": 6
+      },
+      "status": "active",
+      "prospectId": "38bda230-799b-4326-b7c1-4d3049c41093"
+    },
+    {
+      "id": "7996260a-bd00-48b5-8982-cc76fe734ff6",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Sara",
+      "sex": "Female",
+      "sireId": "a6d330f2-4dfd-4b9d-8a8b-68993bca2f67",
+      "damId": "f18a27b9-b9f8-4040-8fed-5c27b6da04f8",
+      "bloodline": "Stout",
+      "phenotype": null,
+      "stats": {
+        "vigor": 6,
+        "fitness": 5,
+        "physique": 8,
+        "reflex": 6,
+        "toughness": 8,
+        "adaptation": 10,
+        "instinct": 1
+      },
+      "status": "active",
+      "prospectId": "38bda230-799b-4326-b7c1-4d3049c41093"
+    },
+    {
+      "id": "5b7c4c9d-e258-4483-9bf6-42dbb40832b2",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Lucille",
+      "sex": "Female",
+      "sireId": "a6d330f2-4dfd-4b9d-8a8b-68993bca2f67",
+      "damId": "f18a27b9-b9f8-4040-8fed-5c27b6da04f8",
+      "bloodline": "Wild",
+      "phenotype": "5",
+      "stats": {
+        "vigor": 7,
+        "fitness": 8,
+        "physique": 7,
+        "reflex": 3,
+        "toughness": 10,
+        "adaptation": 6,
+        "instinct": 0
+      },
+      "status": "active",
+      "prospectId": "38bda230-799b-4326-b7c1-4d3049c41093"
+    },
+    {
+      "id": "e0e03549-51f2-4878-a84e-e66fce7f76ca",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Francis",
+      "sex": "Male",
+      "sireId": "9dd5a115-e560-4b10-83b6-789f7aecadb5",
+      "damId": "8c831ab4-4bb3-4044-995e-de028cbc5b09",
+      "bloodline": "Stout",
+      "phenotype": "5",
+      "stats": {
+        "vigor": 4,
+        "fitness": 10,
+        "physique": 7,
+        "reflex": 4,
+        "toughness": 3,
+        "adaptation": 2,
+        "instinct": 4
+      },
+      "status": "deceased",
+      "prospectId": "38bda230-799b-4326-b7c1-4d3049c41093"
+    },
+    {
+      "id": "8c831ab4-4bb3-4044-995e-de028cbc5b09",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Betty",
+      "sex": "Female",
+      "sireId": "c35369ec-3240-41f7-8414-91f6cb851e7a",
+      "damId": "89313098-bf6d-46da-8476-16160cdae584",
+      "bloodline": "Stout",
+      "phenotype": "5",
+      "stats": {
+        "vigor": 7,
+        "fitness": 7,
+        "physique": 10,
+        "reflex": 6,
+        "toughness": 6,
+        "adaptation": 3,
+        "instinct": 1
+      },
+      "status": "deceased",
+      "prospectId": "38bda230-799b-4326-b7c1-4d3049c41093"
+    },
+    {
+      "id": "f2bc787a-6c6b-4ed1-8d72-228dfd660f2d",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Adam",
+      "sex": "Male",
+      "sireId": "a6d330f2-4dfd-4b9d-8a8b-68993bca2f67",
+      "damId": "8c831ab4-4bb3-4044-995e-de028cbc5b09",
+      "bloodline": "Wild",
+      "phenotype": "5",
+      "stats": {
+        "vigor": 5,
+        "fitness": 9,
+        "physique": 10,
+        "reflex": 3,
+        "toughness": 9,
+        "adaptation": 5,
+        "instinct": 2
+      },
+      "status": "deceased",
+      "prospectId": "38bda230-799b-4326-b7c1-4d3049c41093"
+    },
+    {
+      "id": "a6d330f2-4dfd-4b9d-8a8b-68993bca2f67",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Edward",
+      "sex": "Male",
+      "sireId": "c35369ec-3240-41f7-8414-91f6cb851e7a",
+      "damId": "89313098-bf6d-46da-8476-16160cdae584",
+      "bloodline": "Stout",
+      "phenotype": "5",
+      "stats": {
+        "vigor": 5,
+        "fitness": 4,
+        "physique": 8,
+        "reflex": 10,
+        "toughness": 8,
+        "adaptation": 1,
+        "instinct": 3
+      },
+      "status": "deceased",
+      "prospectId": "38bda230-799b-4326-b7c1-4d3049c41093"
+    },
+    {
+      "id": "2896c739-bffd-4282-91d8-e32a64ece522",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Helen",
+      "sex": "Female",
+      "sireId": "b1f38b76-4924-4472-b72d-eaf778e4de5b",
+      "damId": "f18a27b9-b9f8-4040-8fed-5c27b6da04f8",
+      "bloodline": "Alpha",
+      "phenotype": null,
+      "stats": {
+        "vigor": 3,
+        "fitness": 6,
+        "physique": 10,
+        "reflex": 3,
+        "toughness": 5,
+        "adaptation": 10,
+        "instinct": 6
+      },
+      "status": "deceased",
+      "prospectId": "38bda230-799b-4326-b7c1-4d3049c41093"
+    },
+    {
+      "id": "96d916e2-cfa9-4060-a46d-f82ac74b3fe6",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Nina",
+      "sex": "Female",
+      "sireId": "a3041fca-e02e-4b0c-888c-e086a9d0c5c9",
+      "damId": "8c831ab4-4bb3-4044-995e-de028cbc5b09",
+      "bloodline": "Alpha",
+      "phenotype": "5",
+      "stats": {
+        "vigor": 5,
+        "fitness": 6,
+        "physique": 9,
+        "reflex": 2,
+        "toughness": 8,
+        "adaptation": 6,
+        "instinct": 5
+      },
+      "status": "deceased",
+      "prospectId": "38bda230-799b-4326-b7c1-4d3049c41093"
+    },
+    {
+      "id": "3a10ca8c-bc66-4404-b814-3ab021b952ac",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Margret",
+      "sex": "Female",
+      "sireId": "b1f38b76-4924-4472-b72d-eaf778e4de5b",
+      "damId": "f18a27b9-b9f8-4040-8fed-5c27b6da04f8",
+      "bloodline": "Alpha",
+      "phenotype": null,
+      "stats": {
+        "vigor": 9,
+        "fitness": 10,
+        "physique": 10,
+        "reflex": 6,
+        "toughness": 5,
+        "adaptation": 8,
+        "instinct": 1
+      },
+      "status": "active",
+      "prospectId": "38bda230-799b-4326-b7c1-4d3049c41093"
+    },
+    {
+      "id": "849d23cc-770e-4a24-bc7f-8f8fe8acda3f",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Bernadette",
+      "sex": "Female",
+      "sireId": "b1f38b76-4924-4472-b72d-eaf778e4de5b",
+      "damId": "3a10ca8c-bc66-4404-b814-3ab021b952ac",
+      "bloodline": "Alpha",
+      "phenotype": null,
+      "stats": {
+        "vigor": 4,
+        "fitness": 10,
+        "physique": 10,
+        "reflex": 9,
+        "toughness": 5,
+        "adaptation": 6,
+        "instinct": 2
+      },
+      "status": "active",
+      "prospectId": "38bda230-799b-4326-b7c1-4d3049c41093"
+    },
+    {
+      "id": "a31c37ea-a1de-4a40-874c-74c6e4437b44",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Esther",
+      "sex": "Female",
+      "sireId": "a6d330f2-4dfd-4b9d-8a8b-68993bca2f67",
+      "damId": "f18a27b9-b9f8-4040-8fed-5c27b6da04f8",
+      "bloodline": "Stout",
+      "phenotype": null,
+      "stats": {
+        "vigor": 6,
+        "fitness": 5,
+        "physique": 8,
+        "reflex": 6,
+        "toughness": 8,
+        "adaptation": 10,
+        "instinct": 1
+      },
+      "status": "deceased",
+      "prospectId": "38bda230-799b-4326-b7c1-4d3049c41093"
+    },
+    {
+      "id": "ea9ee528-780d-4d8c-ad7e-fac80ed82e01",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Maddy",
+      "sex": "Female",
+      "sireId": "b1f38b76-4924-4472-b72d-eaf778e4de5b",
+      "damId": "3a10ca8c-bc66-4404-b814-3ab021b952ac",
+      "bloodline": "Alpha",
+      "phenotype": null,
+      "stats": {
+        "vigor": 8,
+        "fitness": 9,
+        "physique": 10,
+        "reflex": 10,
+        "toughness": 3,
+        "adaptation": 6,
+        "instinct": 6
+      },
+      "status": "active",
+      "prospectId": "38bda230-799b-4326-b7c1-4d3049c41093"
+    },
+    {
+      "id": "ef2efdc9-d6f8-49bf-82ea-6f6bb02573ec",
+      "speciesId": "58cf7ab7-7d51-44d9-9b06-e9ee58a5bce9",
+      "name": "Bernard",
+      "sex": "Male",
+      "sireId": "f2bc787a-6c6b-4ed1-8d72-228dfd660f2d",
+      "damId": "8c831ab4-4bb3-4044-995e-de028cbc5b09",
+      "bloodline": "Wild",
+      "phenotype": null,
+      "stats": {
+        "vigor": 6,
+        "fitness": 10,
+        "physique": 10,
+        "reflex": 1,
+        "toughness": 6,
+        "adaptation": 9,
+        "instinct": 0
+      },
+      "status": "deceased",
+      "prospectId": "38bda230-799b-4326-b7c1-4d3049c41093"
+    }
+  ],
+  "prospects": [
+    {
+      "id": "fa9533d9-1411-4275-b3b4-e5f72c044e58",
+      "name": "Homesteading"
+    },
+    {
+      "id": "38bda230-799b-4326-b7c1-4d3049c41093",
+      "name": "Beastland"
+    }
+  ],
+  "classifications": [
+    {
+      "id": "62b3b02e-3f9d-485d-95ee-97be54151d42",
+      "name": "Combat Pet",
+      "scoreConfig": {
+        "statWeights": {
+          "vigor": 1,
+          "fitness": 1,
+          "physique": 1,
+          "reflex": 1,
+          "toughness": 1,
+          "adaptation": 1,
+          "instinct": -1
+        },
+        "constant": 10,
+        "bloodlineBonuses": {
+          "Alpha": 8,
+          "Savage": 4
+        },
+        "phenotypeBonuses": {}
+      }
+    },
+    {
+      "id": "35dd7619-106e-40a5-8519-84765c4eabc6",
+      "name": "Swift Mount",
+      "scoreConfig": {
+        "statWeights": {
+          "vigor": 1,
+          "fitness": 1,
+          "physique": -1,
+          "reflex": 1,
+          "toughness": 1,
+          "adaptation": 1,
+          "instinct": 1
+        },
+        "constant": 0,
+        "bloodlineBonuses": {
+          "Timid": 5
+        },
+        "phenotypeBonuses": {}
+      }
+    },
+    {
+      "id": "4abb764b-0045-401d-a129-b0fd7382651a",
+      "name": "Pack Animal",
+      "scoreConfig": {
+        "statWeights": {
+          "vigor": -1,
+          "fitness": 1,
+          "physique": 1,
+          "reflex": 1,
+          "toughness": 1,
+          "adaptation": 1,
+          "instinct": 1
+        },
+        "constant": 0,
+        "bloodlineBonuses": {
+          "Stout": 5
+        },
+        "phenotypeBonuses": {}
+      }
+    },
+    {
+      "id": "2c395144-758d-4431-847b-4f3e93ca9b48",
+      "name": "Combat Mount",
+      "scoreConfig": {
+        "statWeights": {
+          "vigor": 1,
+          "fitness": 1,
+          "physique": 1,
+          "reflex": 1,
+          "toughness": 1,
+          "adaptation": 1,
+          "instinct": 1
+        },
+        "constant": 0,
+        "bloodlineBonuses": {},
+        "phenotypeBonuses": {}
+      }
+    },
+    {
+      "id": "6bb7ef60-5f01-4660-baa3-193a6527bd4e",
+      "name": "Ranch Animal",
+      "scoreConfig": {
+        "statWeights": {
+          "vigor": 1,
+          "fitness": 1,
+          "physique": 1,
+          "reflex": 1,
+          "toughness": 1,
+          "adaptation": 1,
+          "instinct": 1
+        },
+        "constant": 0,
+        "bloodlineBonuses": {},
+        "phenotypeBonuses": {}
+      }
+    },
+    {
+      "id": "daada85b-931e-44d6-9cf5-4df55c02e6e4",
+      "name": "House Pet",
+      "scoreConfig": {
+        "statWeights": {
+          "vigor": 1,
+          "fitness": 1,
+          "physique": 1,
+          "reflex": 1,
+          "toughness": 1,
+          "adaptation": 1,
+          "instinct": 1
+        },
+        "constant": 0,
+        "bloodlineBonuses": {},
+        "phenotypeBonuses": {}
+      }
+    }
+  ]
+}
