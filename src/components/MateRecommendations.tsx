@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import type { SpeciesDefinition } from '@shared/types'
 import { STAT_NAMES, defaultScoreConfig } from '@shared/types'
-import { rankMatePairs } from '@shared/scoring'
+import { computeTargetProfile, rankMatePairs } from '@shared/scoring'
 import { BLOODLINE_DESCRIPTIONS, STAT_DESCRIPTIONS } from '@shared/descriptions'
 import { useAppData } from '../context/AppDataContext'
 
@@ -29,6 +29,7 @@ export default function MateRecommendations({ species, prospectId }: Props): JSX
     () => rankMatePairs(animals, species.id, scoreConfig, { forAnimalId: focusAnimalId || undefined }),
     [animals, species.id, scoreConfig, focusAnimalId]
   )
+  const target = useMemo(() => computeTargetProfile(scoreConfig), [scoreConfig])
 
   if (!prospectId) {
     return (
@@ -54,7 +55,11 @@ export default function MateRecommendations({ species, prospectId }: Props): JSX
         </select>
       </div>
 
-      <p className="hint">Ranked by total predicted Score (stats + Bloodline bonus + Phenotype bonus).</p>
+      <p className="hint">
+        Ranked by how many "perfect animal" targets a pairing can reach — 10 in every stat, 0 in the Dump
+        Stat, and the top Bloodline — with predicted Score only breaking ties between pairs that reach the
+        same number of targets.
+      </p>
 
       {top.length === 0 ? (
         <p className="empty-state">Not enough animals (need at least one Male and one Female) to suggest pairs.</p>
@@ -71,6 +76,9 @@ export default function MateRecommendations({ species, prospectId }: Props): JSX
               ))}
               <th title="Inherited trait affecting growth and behavior — hover a value for details">Bloodline</th>
               <th>Phenotype</th>
+              <th title="How many of the 7 stats (10, or 0 for the Dump Stat) plus top Bloodline this pairing can reach">
+                Targets
+              </th>
               <th>Predicted Score</th>
             </tr>
           </thead>
@@ -79,11 +87,25 @@ export default function MateRecommendations({ species, prospectId }: Props): JSX
               <tr key={`${male.id}-${female.id}`}>
                 <td>{male.name}</td>
                 <td>{female.name}</td>
-                {STAT_NAMES.map((stat) => (
-                  <td key={stat}>{estimate.stats[stat]}</td>
-                ))}
-                <td title={BLOODLINE_DESCRIPTIONS[estimate.bloodline]}>{estimate.bloodline}</td>
+                {STAT_NAMES.map((stat) => {
+                  const statTarget = target.statTargets[stat]
+                  const hit = statTarget !== undefined && estimate.stats[stat] === statTarget
+                  return (
+                    <td key={stat} className={hit ? 'target-hit' : ''}>
+                      {estimate.stats[stat]}
+                    </td>
+                  )
+                })}
+                <td
+                  title={BLOODLINE_DESCRIPTIONS[estimate.bloodline]}
+                  className={target.bloodlineTargets?.has(estimate.bloodline) ? 'target-hit' : ''}
+                >
+                  {estimate.bloodline}
+                </td>
                 <td>{estimate.phenotype ?? 'Base'}</td>
+                <td>
+                  {estimate.targets.hit}/{estimate.targets.possible}
+                </td>
                 <td className="score-cell">{estimate.score}</td>
               </tr>
             ))}

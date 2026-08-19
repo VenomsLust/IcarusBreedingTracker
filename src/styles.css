@@ -338,6 +338,11 @@ table.animal-table tbody tr:hover {
   color: #7fd08a;
 }
 
+.target-hit {
+  color: #7fd08a;
+  font-weight: 600;
+}
+
 table.animal-table tbody tr.inactive-row {
   opacity: 0.5;
   font-style: italic;

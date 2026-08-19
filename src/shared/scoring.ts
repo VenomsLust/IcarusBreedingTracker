@@ -1,4 +1,4 @@
-import { STAT_NAMES, phenotypeKey, type Animal, type Bloodline, type ScoreConfig, type Stats } from './types'
+import { BLOODLINES, STAT_NAMES, phenotypeKey, type Animal, type Bloodline, type ScoreConfig, type Stats } from './types'
 
 export function computeTotal(stats: Stats): number {
   return STAT_NAMES.reduce((sum, stat) => sum + stats[stat], 0)
@@ -16,11 +16,63 @@ export function computeScore(
   return weighted + config.constant + bloodlineBonus + phenotypeBonus
 }
 
+export interface TargetProfile {
+  // Only stats whose weight is nonzero have a target — a zero-weighted stat
+  // doesn't matter to this Classification, so it's neither hit nor missed.
+  statTargets: Partial<Record<(typeof STAT_NAMES)[number], number>>
+  // null when no Bloodline has a positive bonus configured — i.e. this
+  // Classification doesn't actually favor any one Bloodline over the rest.
+  bloodlineTargets: Set<Bloodline> | null
+}
+
+/**
+ * The literal "perfect animal" for a Classification: 10 in every positively-
+ * weighted stat, 0 in every negatively-weighted (dump) stat, and whichever
+ * Bloodline(s) carry the top bonus.
+ */
+export function computeTargetProfile(config: ScoreConfig): TargetProfile {
+  const statTargets: TargetProfile['statTargets'] = {}
+  for (const stat of STAT_NAMES) {
+    const weight = config.statWeights[stat]
+    if (weight > 0) statTargets[stat] = 10
+    else if (weight < 0) statTargets[stat] = 0
+  }
+
+  const maxBonus = Math.max(0, ...BLOODLINES.map((b) => config.bloodlineBonuses[b] ?? 0))
+  const bloodlineTargets =
+    maxBonus > 0 ? new Set(BLOODLINES.filter((b) => (config.bloodlineBonuses[b] ?? 0) === maxBonus)) : null
+
+  return { statTargets, bloodlineTargets }
+}
+
+export interface TargetsHit {
+  hit: number
+  possible: number
+}
+
+// How many of the "perfect animal" targets (stats + Bloodline) an offspring
+// estimate actually reaches. Phenotype isn't included — there's no single
+// "correct" phenotype the way there's a top Bloodline, it's just a bonus.
+export function countTargetsHit(estimate: { stats: Stats; bloodline: Bloodline }, target: TargetProfile): TargetsHit {
+  let hit = 0
+  let possible = 0
+  for (const [stat, statTarget] of Object.entries(target.statTargets) as [(typeof STAT_NAMES)[number], number][]) {
+    possible += 1
+    if (estimate.stats[stat] === statTarget) hit += 1
+  }
+  if (target.bloodlineTargets) {
+    possible += 1
+    if (target.bloodlineTargets.has(estimate.bloodline)) hit += 1
+  }
+  return { hit, possible }
+}
+
 export interface OffspringEstimate {
   stats: Stats
   bloodline: Bloodline
   phenotype: string | null
   score: number
+  targets: TargetsHit
 }
 
 /**
@@ -53,7 +105,8 @@ export function estimateOffspringCeiling(a: Animal, b: Animal, scoreConfig: Scor
     stats,
     bloodline,
     phenotype,
-    score: computeScore(stats, bloodline, phenotype, scoreConfig)
+    score: computeScore(stats, bloodline, phenotype, scoreConfig),
+    targets: countTargetsHit({ stats, bloodline }, computeTargetProfile(scoreConfig))
   }
 }
 
@@ -90,5 +143,14 @@ export function rankMatePairs(
     }
   }
 
-  return pairs.sort((x, y) => y.estimate.score - x.estimate.score)
+  // Rank primarily by how many "perfect animal" targets (maxed stats, zeroed
+  // dump stat, top Bloodline) the pairing can actually reach — a pair that's
+  // one stat away from perfect should outrank a pair that's spread several
+  // stats short but happens to add up to a higher blended Score. Score only
+  // breaks ties between pairs that hit the same number of targets.
+  return pairs.sort((x, y) => {
+    const targetDiff = y.estimate.targets.hit - x.estimate.targets.hit
+    if (targetDiff !== 0) return targetDiff
+    return y.estimate.score - x.estimate.score
+  })
 }
