@@ -469,13 +469,9 @@ table.inheritance-table td {
   color: #e6e6e6;
 }
 
-.source-mutation {
-  color: #7fd08a;
+.source-random {
+  color: #d6a34a;
   font-weight: 600;
-}
-
-.source-unclear {
-  color: #888;
 }
 
 .cleanup-dialog {

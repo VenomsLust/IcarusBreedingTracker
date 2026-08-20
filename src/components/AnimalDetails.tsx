@@ -12,27 +12,25 @@ interface Props {
   onSelectAnimal: (animalId: string) => void
 }
 
-type StatSource = 'sire' | 'dam' | 'both' | 'mutation' | 'unclear'
+type StatSource = 'sire' | 'dam' | 'both' | 'random'
 
-const SOURCE_LABELS: Record<StatSource, string> = {
-  sire: 'Sire',
-  dam: 'Dam',
-  both: 'Sire & Dam',
-  mutation: 'Mutation',
-  unclear: 'Unclear'
-}
-
-// Icarus breeding only ever inherits a stat up to the higher parent value (or
-// leaves it tied), so anything strictly above both parents is a mutation.
+// Icarus rolls each stat 40% Sire / 40% Dam / 20% random-or-mutation. A value
+// that doesn't match either parent falls in that last 20% bucket, but nothing
+// in the data distinguishes a random reroll from a true mutation within it.
 function statSource(value: number, sireValue: number | null, damValue: number | null): StatSource {
   const sireMatch = sireValue !== null && value === sireValue
   const damMatch = damValue !== null && value === damValue
   if (sireMatch && damMatch) return 'both'
   if (sireMatch) return 'sire'
   if (damMatch) return 'dam'
-  const parentValues = [sireValue, damValue].filter((v): v is number => v !== null)
-  if (parentValues.length > 0 && value > Math.max(...parentValues)) return 'mutation'
-  return 'unclear'
+  return 'random'
+}
+
+function sourceLabel(source: StatSource, sireName: string, damName: string): string {
+  if (source === 'sire') return sireName
+  if (source === 'dam') return damName
+  if (source === 'both') return `${sireName} & ${damName}`
+  return 'Random Roll / Mutation'
 }
 
 export default function AnimalDetails({ species, animalId, onEdit, onClose, onSelectAnimal }: Props): JSX.Element | null {
@@ -157,7 +155,9 @@ export default function AnimalDetails({ species, animalId, onEdit, onClose, onSe
                   <td>{sire ? sireValue : 'Wild Caught'}</td>
                   <td>{dam ? damValue : 'Wild Caught'}</td>
                   <td>{value}</td>
-                  <td className={`source-${source}`}>{SOURCE_LABELS[source]}</td>
+                  <td className={`source-${source}`}>
+                    {sourceLabel(source, sire?.name ?? 'Sire', dam?.name ?? 'Dam')}
+                  </td>
                 </tr>
               )
             })}
