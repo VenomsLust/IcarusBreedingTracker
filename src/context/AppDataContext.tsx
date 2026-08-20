@@ -37,15 +37,73 @@ interface AppDataContextValue {
 
 const AppDataContext = createContext<AppDataContextValue | null>(null)
 
-export function AppDataProvider({ children }: { children: ReactNode }): JSX.Element {
-  const [data, setData] = useState<AppData>(seedAppData)
-  const [dirty, setDirty] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [fileName, setFileName] = useState<string | null>(null)
+// Browser local storage keeps working state alive across reloads/tab closes
+// without the user having to remember to Save. It's per-browser-profile
+// though (not portable, and gone if the user clears site data) — the
+// exported save file is still the only durable, shareable copy.
+const STORAGE_DATA_KEY = 'icarus-breeding-tracker/data'
+const STORAGE_FILENAME_KEY = 'icarus-breeding-tracker/fileName'
+const STORAGE_DIRTY_KEY = 'icarus-breeding-tracker/dirty'
 
-  // There's no autosave in the browser build — data only lives in memory
-  // until the user hits Save — so warn before a navigation/close would
-  // silently discard it.
+function readStoredData(): AppData {
+  try {
+    const raw = localStorage.getItem(STORAGE_DATA_KEY)
+    if (raw) return parseAppData(raw)
+  } catch (err) {
+    console.warn('Failed to restore saved data from local storage — starting fresh.', err)
+  }
+  return seedAppData()
+}
+
+function readStoredFileName(): string | null {
+  try {
+    return localStorage.getItem(STORAGE_FILENAME_KEY)
+  } catch {
+    return null
+  }
+}
+
+function readStoredDirty(): boolean {
+  try {
+    return localStorage.getItem(STORAGE_DIRTY_KEY) === 'true'
+  } catch {
+    return false
+  }
+}
+
+export function AppDataProvider({ children }: { children: ReactNode }): JSX.Element {
+  const [data, setData] = useState<AppData>(readStoredData)
+  const [dirty, setDirty] = useState(readStoredDirty)
+  const [error, setError] = useState<string | null>(null)
+  const [fileName, setFileName] = useState<string | null>(readStoredFileName)
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_DATA_KEY, JSON.stringify(data))
+    } catch (err) {
+      console.warn('Failed to persist data to local storage', err)
+    }
+  }, [data])
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_DIRTY_KEY, String(dirty))
+    } catch {
+      // Best-effort — local storage may be unavailable (e.g. private browsing).
+    }
+  }, [dirty])
+
+  useEffect(() => {
+    try {
+      if (fileName) localStorage.setItem(STORAGE_FILENAME_KEY, fileName)
+      else localStorage.removeItem(STORAGE_FILENAME_KEY)
+    } catch {
+      // Best-effort — local storage may be unavailable (e.g. private browsing).
+    }
+  }, [fileName])
+
+  // The exported file is the only portable copy, so still warn before a
+  // navigation/close would leave changes stranded in this browser only.
   useEffect(() => {
     function handler(e: BeforeUnloadEvent): void {
       if (!dirty) return
