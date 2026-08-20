@@ -437,6 +437,47 @@ table.animal-table tbody tr.inactive-row {
   gap: 6px;
 }
 
+table.inheritance-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+table.inheritance-table th {
+  text-align: left;
+  padding: 8px 10px;
+  color: #8a8d94;
+  white-space: nowrap;
+  border-bottom: 1px solid #2a2b2f;
+}
+
+table.inheritance-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #232427;
+}
+
+.source-sire {
+  color: #4c8bf5;
+}
+
+.source-dam {
+  color: #d67ab8;
+}
+
+.source-both {
+  color: #e6e6e6;
+}
+
+.source-mutation {
+  color: #7fd08a;
+  font-weight: 600;
+}
+
+.source-unclear {
+  color: #888;
+}
+
 .cleanup-dialog {
   width: 560px;
 }

@@ -12,6 +12,29 @@ interface Props {
   onSelectAnimal: (animalId: string) => void
 }
 
+type StatSource = 'sire' | 'dam' | 'both' | 'mutation' | 'unclear'
+
+const SOURCE_LABELS: Record<StatSource, string> = {
+  sire: 'Sire',
+  dam: 'Dam',
+  both: 'Sire & Dam',
+  mutation: 'Mutation',
+  unclear: 'Unclear'
+}
+
+// Icarus breeding only ever inherits a stat up to the higher parent value (or
+// leaves it tied), so anything strictly above both parents is a mutation.
+function statSource(value: number, sireValue: number | null, damValue: number | null): StatSource {
+  const sireMatch = sireValue !== null && value === sireValue
+  const damMatch = damValue !== null && value === damValue
+  if (sireMatch && damMatch) return 'both'
+  if (sireMatch) return 'sire'
+  if (damMatch) return 'dam'
+  const parentValues = [sireValue, damValue].filter((v): v is number => v !== null)
+  if (parentValues.length > 0 && value > Math.max(...parentValues)) return 'mutation'
+  return 'unclear'
+}
+
 export default function AnimalDetails({ species, animalId, onEdit, onClose, onSelectAnimal }: Props): JSX.Element | null {
   const { data, deleteAnimal } = useAppData()
   const animal = data.animals.find((a) => a.id === animalId)
@@ -26,6 +49,7 @@ export default function AnimalDetails({ species, animalId, onEdit, onClose, onSe
   const prospect = animal.prospectId ? data.prospects.find((p) => p.id === animal.prospectId) ?? null : null
   const offspring = data.animals.filter((a) => a.sireId === animal.id || a.damId === animal.id)
   const status = animal.status ?? 'active'
+  const hasParent = animal.sireId !== null || animal.damId !== null
 
   async function handleDelete(): Promise<void> {
     if (!confirm(`Delete ${animal!.name}? This cannot be undone.`)) return
@@ -108,6 +132,40 @@ export default function AnimalDetails({ species, animalId, onEdit, onClose, onSe
           </div>
         ))}
       </div>
+
+      <h3>Stat Inheritance</h3>
+      {hasParent ? (
+        <table className="inheritance-table">
+          <thead>
+            <tr>
+              <th>Stat</th>
+              <th>Sire</th>
+              <th>Dam</th>
+              <th>{animal.name}</th>
+              <th>Source</th>
+            </tr>
+          </thead>
+          <tbody>
+            {STAT_NAMES.map((stat) => {
+              const value = animal.stats[stat]
+              const sireValue = sire ? sire.stats[stat] : null
+              const damValue = dam ? dam.stats[stat] : null
+              const source = statSource(value, sireValue, damValue)
+              return (
+                <tr key={stat}>
+                  <td title={STAT_DESCRIPTIONS[stat]}>{stat.charAt(0).toUpperCase() + stat.slice(1)}</td>
+                  <td>{sire ? sireValue : 'Wild Caught'}</td>
+                  <td>{dam ? damValue : 'Wild Caught'}</td>
+                  <td>{value}</td>
+                  <td className={`source-${source}`}>{SOURCE_LABELS[source]}</td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      ) : (
+        <p className="empty-state">Wild Caught</p>
+      )}
 
       <h3>Offspring</h3>
       {offspring.length === 0 ? (
