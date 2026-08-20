@@ -10,12 +10,12 @@ import { downloadText } from '../lib/fileIO'
 interface Props {
   species: SpeciesDefinition
   prospectId: string | null
-  onEditAnimal: (animalId: string) => void
+  onSelectAnimal: (animalId: string) => void
 }
 
 type SortKey = 'name' | 'sex' | 'bloodline' | 'prospect' | 'status' | 'total' | 'score' | (typeof STAT_NAMES)[number]
 
-export default function AnimalTable({ species, prospectId, onEditAnimal }: Props): JSX.Element {
+export default function AnimalTable({ species, prospectId, onSelectAnimal }: Props): JSX.Element {
   const { data, deleteAnimal } = useAppData()
   const [sortKey, setSortKey] = useState<SortKey>('score')
   const [sortDir, setSortDir] = useState<1 | -1>(-1)
@@ -166,7 +166,7 @@ export default function AnimalTable({ species, prospectId, onEditAnimal }: Props
               <tr
                 key={animal.id}
                 className={status !== 'active' ? 'inactive-row' : ''}
-                onClick={() => onEditAnimal(animal.id)}
+                onClick={() => onSelectAnimal(animal.id)}
               >
                 <td>{animal.name}</td>
                 <td>{animal.sex}</td>

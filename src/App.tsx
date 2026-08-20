@@ -3,6 +3,7 @@ import { useAppData } from './context/AppDataContext'
 import Toolbar from './components/Toolbar'
 import Sidebar from './components/Sidebar'
 import AnimalTable from './components/AnimalTable'
+import AnimalDetails from './components/AnimalDetails'
 import AnimalForm from './components/AnimalForm'
 import SpeciesEditor from './components/SpeciesEditor'
 import ClassificationEditor from './components/ClassificationEditor'
@@ -22,6 +23,7 @@ export default function App(): JSX.Element {
   const [selectedProspectId, setSelectedProspectId] = useState<string | null>(null)
   const [tab, setTab] = useState<Tab>('animals')
   const [animalForm, setAnimalForm] = useState<AnimalFormState>(null)
+  const [animalDetailId, setAnimalDetailId] = useState<string | null>(null)
   const [speciesEditor, setSpeciesEditor] = useState<SpeciesEditorState>(null)
   const [classificationEditor, setClassificationEditor] = useState<ClassificationEditorState>(null)
   const [prospectEditor, setProspectEditor] = useState<ProspectEditorState>(null)
@@ -38,12 +40,19 @@ export default function App(): JSX.Element {
     }
   }, [data, selectedProspectId])
 
+  useEffect(() => {
+    if (animalDetailId && !data.animals.some((a) => a.id === animalDetailId)) {
+      setAnimalDetailId(null)
+    }
+  }, [data, animalDetailId])
+
   const selectedSpecies = data.species.find((s) => s.id === selectedSpeciesId) ?? null
 
   function selectSpecies(id: string): void {
     setSelectedSpeciesId(id)
     setTab('animals')
     setAnimalForm(null)
+    setAnimalDetailId(null)
   }
 
   return (
@@ -89,7 +98,7 @@ export default function App(): JSX.Element {
                     Mate Recommendations
                   </button>
                 </nav>
-                {tab === 'animals' && !animalForm && (
+                {tab === 'animals' && !animalForm && !animalDetailId && (
                   <button className="primary" onClick={() => setAnimalForm({ mode: 'add' })}>
                     + Add Animal
                   </button>
@@ -103,11 +112,19 @@ export default function App(): JSX.Element {
                   defaultProspectId={selectedProspectId}
                   onDone={() => setAnimalForm(null)}
                 />
+              ) : animalDetailId ? (
+                <AnimalDetails
+                  species={selectedSpecies}
+                  animalId={animalDetailId}
+                  onEdit={(id) => setAnimalForm({ mode: 'edit', animalId: id })}
+                  onClose={() => setAnimalDetailId(null)}
+                  onSelectAnimal={setAnimalDetailId}
+                />
               ) : tab === 'animals' ? (
                 <AnimalTable
                   species={selectedSpecies}
                   prospectId={selectedProspectId}
-                  onEditAnimal={(id) => setAnimalForm({ mode: 'edit', animalId: id })}
+                  onSelectAnimal={setAnimalDetailId}
                 />
               ) : (
                 <MateRecommendations species={selectedSpecies} prospectId={selectedProspectId} />
