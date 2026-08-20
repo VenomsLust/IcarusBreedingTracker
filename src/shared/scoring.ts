@@ -67,12 +67,45 @@ export function countTargetsHit(estimate: { stats: Stats; bloodline: Bloodline }
   return { hit, possible }
 }
 
+export interface TargetOdds {
+  // Sum of each target's hit probability — a smooth, comparable "how good is
+  // this pairing" number even when no single target is likely.
+  expectedHits: number
+  // Chance every target is hit simultaneously (independence assumed).
+  probabilityAllHit: number
+}
+
+// Icarus rolls each stat/trait 40% from the Sire's value, 40% from the Dam's,
+// 20% random-or-mutation. That last 20% has no known distribution (see
+// AnimalDetails' "Random Roll / Mutation" label), so it's treated as
+// contributing zero chance of landing exactly on a target — these are floor
+// odds from the two known 40% paths, not the true (higher) odds.
+export function computeTargetOdds(a: Animal, b: Animal, target: TargetProfile): TargetOdds {
+  let expectedHits = 0
+  let probabilityAllHit = 1
+
+  for (const [stat, statTarget] of Object.entries(target.statTargets) as [(typeof STAT_NAMES)[number], number][]) {
+    const p = (a.stats[stat] === statTarget ? 0.4 : 0) + (b.stats[stat] === statTarget ? 0.4 : 0)
+    expectedHits += p
+    probabilityAllHit *= p
+  }
+
+  if (target.bloodlineTargets) {
+    const p = (target.bloodlineTargets.has(a.bloodline) ? 0.4 : 0) + (target.bloodlineTargets.has(b.bloodline) ? 0.4 : 0)
+    expectedHits += p
+    probabilityAllHit *= p
+  }
+
+  return { expectedHits, probabilityAllHit }
+}
+
 export interface OffspringEstimate {
   stats: Stats
   bloodline: Bloodline
   phenotype: string | null
   score: number
   targets: TargetsHit
+  odds: TargetOdds
 }
 
 /**
@@ -101,12 +134,15 @@ export function estimateOffspringCeiling(a: Animal, b: Animal, scoreConfig: Scor
   const phenotypeBonusB = scoreConfig.phenotypeBonuses[phenotypeKey(b.phenotype)] ?? 0
   const phenotype = phenotypeBonusA >= phenotypeBonusB ? a.phenotype : b.phenotype
 
+  const target = computeTargetProfile(scoreConfig)
+
   return {
     stats,
     bloodline,
     phenotype,
     score: computeScore(stats, bloodline, phenotype, scoreConfig),
-    targets: countTargetsHit({ stats, bloodline }, computeTargetProfile(scoreConfig))
+    targets: countTargetsHit({ stats, bloodline }, target),
+    odds: computeTargetOdds(a, b, target)
   }
 }
 
@@ -143,12 +179,15 @@ export function rankMatePairs(
     }
   }
 
-  // Rank primarily by how many "perfect animal" targets (maxed stats, zeroed
-  // dump stat, top Bloodline) the pairing can actually reach — a pair that's
-  // one stat away from perfect should outrank a pair that's spread several
-  // stats short but happens to add up to a higher blended Score. Score only
-  // breaks ties between pairs that hit the same number of targets.
+  // Rank primarily by expected targets hit — the sum of each target's actual
+  // 40%-Sire/40%-Dam odds — rather than just whether the ceiling reaches it,
+  // since a pair that's one likely stat away from perfect should outrank one
+  // that's technically capable of perfect but needs six unlikely rolls to get
+  // there. Ceiling targets.hit breaks ties (prefer the higher upside), then
+  // predicted Score.
   return pairs.sort((x, y) => {
+    const oddsDiff = y.estimate.odds.expectedHits - x.estimate.odds.expectedHits
+    if (oddsDiff !== 0) return oddsDiff
     const targetDiff = y.estimate.targets.hit - x.estimate.targets.hit
     if (targetDiff !== 0) return targetDiff
     return y.estimate.score - x.estimate.score
