@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import type { Animal, SpeciesDefinition } from '@shared/types'
 import { STAT_NAMES, defaultScoreConfig } from '@shared/types'
-import { computeScore, computeTotal } from '@shared/scoring'
+import { computeScore, computeTargetProfile, computeTotal } from '@shared/scoring'
 import { buildExportRows, toExportJson, toExportXml } from '@shared/exportData'
 import { BLOODLINE_DESCRIPTIONS, STAT_DESCRIPTIONS } from '@shared/descriptions'
 import { useAppData } from '../context/AppDataContext'
@@ -30,6 +30,7 @@ export default function AnimalTable({ species, prospectId, onSelectAnimal }: Pro
   const prospectNameById = new Map(data.prospects.map((p) => [p.id, p.name]))
   const scoreConfig =
     data.classifications.find((c) => c.id === species.classificationId)?.scoreConfig ?? defaultScoreConfig()
+  const target = computeTargetProfile(scoreConfig)
 
   const rows = useMemo(() => {
     return animalsBySpecies
@@ -172,13 +173,24 @@ export default function AnimalTable({ species, prospectId, onSelectAnimal }: Pro
                 <td>{animal.sex}</td>
                 <td>{animal.sireId ? animalNameById.get(animal.sireId) ?? '—' : 'Wild Caught'}</td>
                 <td>{animal.damId ? animalNameById.get(animal.damId) ?? '—' : 'Wild Caught'}</td>
-                <td title={BLOODLINE_DESCRIPTIONS[animal.bloodline]}>{animal.bloodline}</td>
+                <td
+                  title={BLOODLINE_DESCRIPTIONS[animal.bloodline]}
+                  className={target.bloodlineTargets?.has(animal.bloodline) ? 'target-hit' : ''}
+                >
+                  {animal.bloodline}
+                </td>
                 <td>{animal.phenotype ?? 'Base'}</td>
                 <td>{prospectName}</td>
                 <td className={`status-cell status-${status}`}>{status}</td>
-                {STAT_NAMES.map((stat) => (
-                  <td key={stat}>{animal.stats[stat]}</td>
-                ))}
+                {STAT_NAMES.map((stat) => {
+                  const statTarget = target.statTargets[stat]
+                  const hit = statTarget !== undefined && animal.stats[stat] === statTarget
+                  return (
+                    <td key={stat} className={hit ? 'target-hit' : ''}>
+                      {animal.stats[stat]}
+                    </td>
+                  )
+                })}
                 <td>{total}</td>
                 <td className="score-cell">{score}</td>
                 <td>
