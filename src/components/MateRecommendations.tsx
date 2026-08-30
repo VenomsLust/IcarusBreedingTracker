@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import type { SpeciesDefinition } from '@shared/types'
 import { STAT_NAMES, defaultScoreConfig } from '@shared/types'
 import type { MatePair, TargetProfile } from '@shared/scoring'
-import { computeTargetProfile, groupMatePairsByBloodlineTier, rankMatePairs } from '@shared/scoring'
+import { computeBreedDownPairs, computeTargetProfile, groupMatePairsByBloodlineTier, rankMatePairs } from '@shared/scoring'
 import { BLOODLINE_DESCRIPTIONS, STAT_DESCRIPTIONS } from '@shared/descriptions'
 import { useAppData } from '../context/AppDataContext'
 
@@ -106,6 +106,10 @@ export default function MateRecommendations({ species, prospectId }: Props): JSX
   )
   const target = useMemo(() => computeTargetProfile(scoreConfig), [scoreConfig])
   const tiers = useMemo(() => groupMatePairsByBloodlineTier(pairs, target), [pairs, target])
+  const breedDownPairs = useMemo(
+    () => computeBreedDownPairs(animals, species.id, scoreConfig, { forAnimalId: focusAnimalId || undefined }),
+    [animals, species.id, scoreConfig, focusAnimalId]
+  )
 
   if (!prospectId) {
     return (
@@ -128,6 +132,20 @@ export default function MateRecommendations({ species, prospectId }: Props): JSX
           ))}
         </select>
       </div>
+
+      {breedDownPairs && breedDownPairs.length > 0 && (
+        <div className="mate-tier">
+          <h3 title="A breeder's first step — Icarus never averages stats, so a 10 everywhere else is worthless on an animal that still passes on a nonzero Dump Stat.">
+            Breed Down
+          </h3>
+          <p className="hint">
+            Ranked by each parent's own current Dump Stat (lower is better, summed across the pair), then by
+            their combined Total excluding the Dump Stat as a tie-breaker. This section drops once a Male and a
+            Female each already carry 0 in the Dump Stat — that's a usable base breeding pair.
+          </p>
+          <MatePairTable pairs={breedDownPairs} target={target} />
+        </div>
+      )}
 
       <p className="hint">
         {tiers && (

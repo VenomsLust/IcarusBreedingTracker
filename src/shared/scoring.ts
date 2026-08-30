@@ -161,20 +161,17 @@ export interface MatePair {
   estimate: OffspringEstimate
 }
 
-export function rankMatePairs(
-  animals: Animal[],
-  speciesId: string,
-  scoreConfig: ScoreConfig,
-  options?: { forAnimalId?: string }
-): MatePair[] {
-  // Retired and deceased animals aren't candidates for breeding.
-  const pool = animals.filter((animal) => {
+// Retired and deceased animals aren't candidates for breeding.
+function filterBreedingPool(animals: Animal[], speciesId: string): Animal[] {
+  return animals.filter((animal) => {
     if (animal.speciesId !== speciesId) return false
     if (animal.status === 'deceased') return false
     if (animal.status === 'retired') return false
     return true
   })
+}
 
+function buildMatePairs(pool: Animal[], scoreConfig: ScoreConfig, options?: { forAnimalId?: string }): MatePair[] {
   const males = pool.filter((a) => a.sex === 'Male')
   const females = pool.filter((a) => a.sex === 'Female')
 
@@ -187,6 +184,17 @@ export function rankMatePairs(
       pairs.push({ male, female, estimate: estimateOffspringCeiling(male, female, scoreConfig) })
     }
   }
+  return pairs
+}
+
+export function rankMatePairs(
+  animals: Animal[],
+  speciesId: string,
+  scoreConfig: ScoreConfig,
+  options?: { forAnimalId?: string }
+): MatePair[] {
+  const pool = filterBreedingPool(animals, speciesId)
+  const pairs = buildMatePairs(pool, scoreConfig, options)
 
   // Rank primarily by expected targets hit — the sum of each target's actual
   // 40%-Sire/40%-Dam odds — rather than just whether the ceiling reaches it,
@@ -203,26 +211,65 @@ export function rankMatePairs(
   })
 }
 
+// Recommendation groups are capped so the working view stays uncluttered.
+const RECOMMENDATION_CAP = 5
+
+// A breeder's first step: drive the Dump Stat down to 0 in both parents
+// before chasing anything else, since Icarus never averages stats — a 10 in
+// every other stat is worthless on an animal that still passes on a
+// nonzero Dump Stat. Ranks candidate pairs by each parent's own current
+// Dump Stat (lower is better, summed across the pair), then by their
+// combined Total excluding the Dump Stat as a tie-breaker. Returns null
+// once there's nothing left to breed down — no Dump Stat is configured for
+// this Classification, or a Male and a Female already each carry 0 in every
+// Dump Stat (a usable base breeding pair already exists).
+export function computeBreedDownPairs(
+  animals: Animal[],
+  speciesId: string,
+  scoreConfig: ScoreConfig,
+  options?: { forAnimalId?: string }
+): MatePair[] | null {
+  const target = computeTargetProfile(scoreConfig)
+  const dumpStats = STAT_NAMES.filter((stat) => target.statTargets[stat] === 0)
+  if (dumpStats.length === 0) return null
+
+  const pool = filterBreedingPool(animals, speciesId)
+  const isZeroDump = (a: Animal): boolean => dumpStats.every((stat) => a.stats[stat] === 0)
+  const hasBasePair = pool.some((a) => a.sex === 'Male' && isZeroDump(a)) && pool.some((a) => a.sex === 'Female' && isZeroDump(a))
+  if (hasBasePair) return null
+
+  const dumpTotal = (pair: MatePair): number =>
+    dumpStats.reduce((sum, stat) => sum + pair.male.stats[stat] + pair.female.stats[stat], 0)
+  const nonDumpTotal = (pair: MatePair): number =>
+    computeTotal(pair.male.stats) + computeTotal(pair.female.stats) - dumpTotal(pair)
+
+  return buildMatePairs(pool, scoreConfig, options)
+    .sort((x, y) => {
+      const dumpDiff = dumpTotal(x) - dumpTotal(y)
+      if (dumpDiff !== 0) return dumpDiff
+      return nonDumpTotal(y) - nonDumpTotal(x)
+    })
+    .slice(0, RECOMMENDATION_CAP)
+}
+
 export interface TieredMatePairs {
   purebred: MatePair[]
   crossbred: MatePair[]
   outcross: MatePair[]
 }
 
-const TIER_CAP = 5
-
 // Splits already-ranked pairs into Bloodline tiers, capping each at
-// TIER_CAP so the working view stays uncluttered. Relative order within
-// each tier is preserved from rankMatePairs (i.e. still stat-Expected-Hits
-// first). Null when this Classification doesn't favor any Bloodline — there's
-// nothing to tier by, so the caller should fall back to a flat list.
+// RECOMMENDATION_CAP. Relative order within each tier is preserved from
+// rankMatePairs (i.e. still stat-Expected-Hits first). Null when this
+// Classification doesn't favor any Bloodline — there's nothing to tier by,
+// so the caller should fall back to a flat list.
 export function groupMatePairsByBloodlineTier(pairs: MatePair[], target: TargetProfile): TieredMatePairs | null {
   if (!target.bloodlineTargets) return null
 
   const tiers: TieredMatePairs = { purebred: [], crossbred: [], outcross: [] }
   for (const pair of pairs) {
     const tier = classifyBloodlineTier(pair.male, pair.female, target)
-    if (!tier || tiers[tier].length >= TIER_CAP) continue
+    if (!tier || tiers[tier].length >= RECOMMENDATION_CAP) continue
     tiers[tier].push(pair)
   }
   return tiers
