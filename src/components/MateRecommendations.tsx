@@ -1,8 +1,15 @@
-import { useMemo, useState } from 'react'
-import type { SpeciesDefinition } from '@shared/types'
-import { STAT_NAMES, defaultScoreConfig } from '@shared/types'
+import { useEffect, useMemo, useState } from 'react'
+import type { Bloodline, SpeciesDefinition } from '@shared/types'
+import { BLOODLINES, STAT_NAMES, defaultScoreConfig } from '@shared/types'
 import type { MatePair, TargetProfile } from '@shared/scoring'
-import { computeBreedDownPairs, computeTargetProfile, groupMatePairsByBloodlineTier, rankMatePairs } from '@shared/scoring'
+import {
+  RECOMMENDATION_CAP,
+  computeBreedDownPairs,
+  computeTargetProfile,
+  favoredBloodline,
+  filterMatePairsByBloodline,
+  rankMatePairs
+} from '@shared/scoring'
 import { BLOODLINE_DESCRIPTIONS, STAT_DESCRIPTIONS } from '@shared/descriptions'
 import { useAppData } from '../context/AppDataContext'
 
@@ -10,14 +17,6 @@ interface Props {
   species: SpeciesDefinition
   prospectId: string | null
 }
-
-const TOP_N = 10
-
-const BLOODLINE_TIERS = [
-  { key: 'purebred', label: 'Purebred', hint: 'Both parents already carry a top Bloodline.' },
-  { key: 'crossbred', label: 'Crossbred', hint: 'One parent already carries a top Bloodline.' },
-  { key: 'outcross', label: 'Outcross', hint: 'Neither parent carries a top Bloodline — ranked on stats alone.' }
-] as const
 
 function formatChance(p: number): string {
   if (p <= 0) return '0%'
@@ -90,6 +89,7 @@ function MatePairTable({ pairs, target }: { pairs: MatePair[]; target: TargetPro
 export default function MateRecommendations({ species, prospectId }: Props): JSX.Element {
   const { data } = useAppData()
   const [focusAnimalId, setFocusAnimalId] = useState<string>('')
+  const [selectedBloodline, setSelectedBloodline] = useState<Bloodline | ''>('')
 
   // Retired/deceased animals aren't breeding candidates, so they're excluded
   // here too — otherwise picking one in the "Best mates for" dropdown would
@@ -105,10 +105,30 @@ export default function MateRecommendations({ species, prospectId }: Props): JSX
     [animals, species.id, scoreConfig, focusAnimalId]
   )
   const target = useMemo(() => computeTargetProfile(scoreConfig), [scoreConfig])
-  const tiers = useMemo(() => groupMatePairsByBloodlineTier(pairs, target), [pairs, target])
   const breedDownPairs = useMemo(
     () => computeBreedDownPairs(animals, species.id, scoreConfig, { forAnimalId: focusAnimalId || undefined }),
     [animals, species.id, scoreConfig, focusAnimalId]
+  )
+
+  // Re-defaults to this Classification's favored Bloodline whenever the
+  // selected species changes, but otherwise leaves the user's choice alone.
+  useEffect(() => {
+    setSelectedBloodline(favoredBloodline(target) ?? '')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [species.id])
+
+  const bloodlineFiltered = useMemo(
+    () => (selectedBloodline ? filterMatePairsByBloodline(pairs, selectedBloodline) : null),
+    [pairs, selectedBloodline]
+  )
+  const outcrossPairs = useMemo(() => pairs.slice(0, RECOMMENDATION_CAP), [pairs])
+  const selectedBloodlineTarget: TargetProfile = useMemo(
+    () => ({ statTargets: target.statTargets, bloodlineTargets: selectedBloodline ? new Set([selectedBloodline]) : null }),
+    [target, selectedBloodline]
+  )
+  const noBloodlineTarget: TargetProfile = useMemo(
+    () => ({ statTargets: target.statTargets, bloodlineTargets: null }),
+    [target]
   )
 
   if (!prospectId) {
@@ -131,6 +151,14 @@ export default function MateRecommendations({ species, prospectId }: Props): JSX
             </option>
           ))}
         </select>
+        <select value={selectedBloodline} onChange={(e) => setSelectedBloodline(e.target.value as Bloodline | '')}>
+          <option value="">No Bloodline filter</option>
+          {BLOODLINES.map((b) => (
+            <option key={b} value={b} title={BLOODLINE_DESCRIPTIONS[b]}>
+              Favor {b}
+            </option>
+          ))}
+        </select>
       </div>
 
       {breedDownPairs && breedDownPairs.length > 0 && (
@@ -148,11 +176,13 @@ export default function MateRecommendations({ species, prospectId }: Props): JSX
       )}
 
       <p className="hint">
-        {tiers && (
+        {selectedBloodline ? (
           <>
-            Pairs are grouped by Bloodline tier — Purebred (both parents carry a top Bloodline), Crossbred (one
-            does), Outcross (neither, ranked on stats alone) — up to 5 pairs each.{' '}
+            Purebred and Crossbred are filtered on {selectedBloodline} — both parents carry it, or just one —
+            up to 5 pairs each. Outcross ignores Bloodline entirely and ranks every pair on stats alone.{' '}
           </>
+        ) : (
+          <>Pick a Bloodline above to see Purebred/Crossbred pairs. Outcross always ranks every pair on stats alone.{' '}</>
         )}
         Within a group, ranked by Expected Hits — Icarus rolls each stat 40% Sire / 40% Dam / 20%
         random-or-mutation, so each stat target (10, or 0 for the Dump Stat) counts for up to 0.8 toward the
@@ -163,19 +193,33 @@ export default function MateRecommendations({ species, prospectId }: Props): JSX
 
       {pairs.length === 0 ? (
         <p className="empty-state">Not enough animals (need at least one Male and one Female) to suggest pairs.</p>
-      ) : tiers ? (
-        BLOODLINE_TIERS.map(({ key, label, hint }) => (
-          <div key={key} className="mate-tier">
-            <h3 title={hint}>{label}</h3>
-            {tiers[key].length === 0 ? (
-              <p className="empty-state">No {label} pairs yet.</p>
-            ) : (
-              <MatePairTable pairs={tiers[key]} target={target} />
-            )}
-          </div>
-        ))
       ) : (
-        <MatePairTable pairs={pairs.slice(0, TOP_N)} target={target} />
+        <>
+          {bloodlineFiltered && (
+            <>
+              <div className="mate-tier">
+                <h3 title={`Both parents already carry ${selectedBloodline}.`}>Purebred</h3>
+                {bloodlineFiltered.purebred.length === 0 ? (
+                  <p className="empty-state">No Purebred pairs yet.</p>
+                ) : (
+                  <MatePairTable pairs={bloodlineFiltered.purebred} target={selectedBloodlineTarget} />
+                )}
+              </div>
+              <div className="mate-tier">
+                <h3 title={`One parent already carries ${selectedBloodline}.`}>Crossbred</h3>
+                {bloodlineFiltered.crossbred.length === 0 ? (
+                  <p className="empty-state">No Crossbred pairs yet.</p>
+                ) : (
+                  <MatePairTable pairs={bloodlineFiltered.crossbred} target={selectedBloodlineTarget} />
+                )}
+              </div>
+            </>
+          )}
+          <div className="mate-tier">
+            <h3 title="Ignores Bloodline entirely — ranked purely on stats.">Outcross</h3>
+            <MatePairTable pairs={outcrossPairs} target={noBloodlineTarget} />
+          </div>
+        </>
       )}
     </div>
   )

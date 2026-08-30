@@ -51,7 +51,7 @@ export interface TargetsHit {
 }
 
 // How many of the "perfect animal" stat targets an offspring estimate
-// actually reaches. Bloodline is handled separately by classifyBloodlineTier
+// actually reaches. Bloodline is handled separately by filterMatePairsByBloodline
 // (it's an all-or-nothing trait, not a fuzzy target to blend into a stat
 // count) and phenotype isn't included — there's no single "correct"
 // phenotype the way there's a top Bloodline, it's just a bonus.
@@ -78,7 +78,7 @@ export interface TargetOdds {
 // AnimalDetails' "Random Roll / Mutation" label), so it's treated as
 // contributing zero chance of landing exactly on a target — these are floor
 // odds from the two known 40% paths, not the true (higher) odds. Bloodline is
-// excluded here — see classifyBloodlineTier.
+// excluded here — see filterMatePairsByBloodline.
 export function computeTargetOdds(a: Animal, b: Animal, target: TargetProfile): TargetOdds {
   let expectedHits = 0
   let probabilityAllHit = 1
@@ -92,20 +92,11 @@ export function computeTargetOdds(a: Animal, b: Animal, target: TargetProfile): 
   return { expectedHits, probabilityAllHit }
 }
 
-export type BloodlineTier = 'purebred' | 'crossbred' | 'outcross'
-
-// Bloodline doesn't have partial credit the way a stat does (no "8 out of
-// 10 toward target"), so instead of blending it into Expected Hits it sorts
-// a pair into one of three tiers by how many parents already carry a top
-// Bloodline: null when this Classification doesn't favor any Bloodline, so
-// there's nothing to tier by.
-export function classifyBloodlineTier(a: Animal, b: Animal, target: TargetProfile): BloodlineTier | null {
+// The Bloodline a user picks (in MateRecommendations) to favor — defaults to
+// whichever Bloodline carries this Classification's top bonus, if any.
+export function favoredBloodline(target: TargetProfile): Bloodline | null {
   if (!target.bloodlineTargets) return null
-  const aHas = target.bloodlineTargets.has(a.bloodline)
-  const bHas = target.bloodlineTargets.has(b.bloodline)
-  if (aHas && bHas) return 'purebred'
-  if (aHas || bHas) return 'crossbred'
-  return 'outcross'
+  return BLOODLINES.find((b) => target.bloodlineTargets!.has(b)) ?? null
 }
 
 export interface OffspringEstimate {
@@ -212,7 +203,7 @@ export function rankMatePairs(
 }
 
 // Recommendation groups are capped so the working view stays uncluttered.
-const RECOMMENDATION_CAP = 5
+export const RECOMMENDATION_CAP = 5
 
 // A breeder's first step: drive the Dump Stat down to 0 in both parents
 // before chasing anything else, since Icarus never averages stats — a 10 in
@@ -252,25 +243,30 @@ export function computeBreedDownPairs(
     .slice(0, RECOMMENDATION_CAP)
 }
 
-export interface TieredMatePairs {
+export interface BloodlineFilteredPairs {
   purebred: MatePair[]
   crossbred: MatePair[]
-  outcross: MatePair[]
 }
 
-// Splits already-ranked pairs into Bloodline tiers, capping each at
-// RECOMMENDATION_CAP. Relative order within each tier is preserved from
-// rankMatePairs (i.e. still stat-Expected-Hits first). Null when this
-// Classification doesn't favor any Bloodline — there's nothing to tier by,
-// so the caller should fall back to a flat list.
-export function groupMatePairsByBloodlineTier(pairs: MatePair[], target: TargetProfile): TieredMatePairs | null {
-  if (!target.bloodlineTargets) return null
-
-  const tiers: TieredMatePairs = { purebred: [], crossbred: [], outcross: [] }
+// Splits already-ranked pairs by a user-chosen Bloodline (not necessarily
+// this Classification's configured favorite — see favoredBloodline for the
+// default) into Purebred (both parents carry it) and Crossbred (one does),
+// each capped at RECOMMENDATION_CAP. Order within each is preserved from the
+// input (still stat-Expected-Hits first). A pair where neither parent
+// carries it belongs to neither bucket — Outcross ignores Bloodline
+// entirely and is just the plain stat-ranked pair list, so it isn't built
+// here.
+export function filterMatePairsByBloodline(pairs: MatePair[], bloodline: Bloodline): BloodlineFilteredPairs {
+  const purebred: MatePair[] = []
+  const crossbred: MatePair[] = []
   for (const pair of pairs) {
-    const tier = classifyBloodlineTier(pair.male, pair.female, target)
-    if (!tier || tiers[tier].length >= RECOMMENDATION_CAP) continue
-    tiers[tier].push(pair)
+    const maleHas = pair.male.bloodline === bloodline
+    const femaleHas = pair.female.bloodline === bloodline
+    if (maleHas && femaleHas) {
+      if (purebred.length < RECOMMENDATION_CAP) purebred.push(pair)
+    } else if (maleHas || femaleHas) {
+      if (crossbred.length < RECOMMENDATION_CAP) crossbred.push(pair)
+    }
   }
-  return tiers
+  return { purebred, crossbred }
 }
