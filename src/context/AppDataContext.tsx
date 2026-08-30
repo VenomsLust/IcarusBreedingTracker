@@ -10,7 +10,8 @@ import {
   applySaveClassification,
   applySaveProspect,
   applySaveSpecies,
-  parseAppData
+  parseAppData,
+  reduceToDiff
 } from '@shared/validation'
 import { seedAppData } from '@shared/seedData'
 import { downloadText, readFileAsText } from '../lib/fileIO'
@@ -175,7 +176,7 @@ export function AppDataProvider({ children }: { children: ReactNode }): JSX.Elem
 
   function saveToFile(): void {
     const name = fileName ?? 'icarus-breeding-data.json'
-    downloadText(name, JSON.stringify(data, null, 2))
+    downloadText(name, JSON.stringify(reduceToDiff(data), null, 2))
     setDirty(false)
     setFileName(name)
   }
