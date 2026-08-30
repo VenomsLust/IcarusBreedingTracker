@@ -6,6 +6,7 @@ import {
   applyDeleteClassification,
   applyDeleteProspect,
   applyDeleteSpecies,
+  applyImportAnimals,
   applySaveAnimal,
   applySaveClassification,
   applySaveProspect,
@@ -22,6 +23,7 @@ interface AppDataContextValue {
   error: string | null
   fileName: string | null
   saveAnimal: (animal: Animal) => Promise<void>
+  importAnimals: (animals: Animal[]) => Promise<void>
   deleteAnimal: (animalId: string) => Promise<void>
   deleteAnimals: (animalIds: string[]) => Promise<void>
   saveSpecies: (species: SpeciesDefinition) => Promise<void>
@@ -120,6 +122,11 @@ export function AppDataProvider({ children }: { children: ReactNode }): JSX.Elem
     setDirty(true)
   }
 
+  async function importAnimals(animals: Animal[]): Promise<void> {
+    setData(applyImportAnimals(data, animals))
+    setDirty(true)
+  }
+
   async function deleteAnimal(animalId: string): Promise<void> {
     setData(applyDeleteAnimal(data, animalId))
     setDirty(true)
@@ -198,6 +205,7 @@ export function AppDataProvider({ children }: { children: ReactNode }): JSX.Elem
     error,
     fileName,
     saveAnimal,
+    importAnimals,
     deleteAnimal,
     deleteAnimals,
     saveSpecies,

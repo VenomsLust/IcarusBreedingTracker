@@ -192,6 +192,13 @@ export function applyDeleteAnimal(data: AppData, animalId: string): AppData {
   return applyDeleteAnimals(data, [animalId])
 }
 
+// Applies a batch of animal upserts (add or edit) as one pure-function
+// reduction, so validation sees each prior upsert in the same batch - unlike
+// calling applySaveAnimal in a loop against a single stale `data` snapshot.
+export function applyImportAnimals(data: AppData, animals: Animal[]): AppData {
+  return animals.reduce((acc, animal) => applySaveAnimal(acc, animal), data)
+}
+
 export function applyDeleteAnimals(data: AppData, animalIds: string[]): AppData {
   const idSet = new Set(animalIds)
   return {

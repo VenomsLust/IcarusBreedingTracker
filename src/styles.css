@@ -503,6 +503,48 @@ table.inheritance-table td {
   width: 560px;
 }
 
+.import-dialog {
+  width: 720px;
+  max-width: 90vw;
+}
+
+.import-mapping-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.import-mapping-list label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.import-row-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.import-row-header h3 {
+  margin: 0;
+}
+
+.import-diff-table {
+  display: block;
+  max-height: 420px;
+  overflow-y: auto;
+  margin-bottom: 16px;
+}
+
+.import-diff-table td {
+  vertical-align: top;
+}
+
 .form-grid,
 .stats-grid,
 .bloodline-grid {

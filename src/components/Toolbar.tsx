@@ -1,9 +1,18 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { useAppData } from '../context/AppDataContext'
+import { parseSaveFile, type ParsedSaveFile } from '@shared/gameImport/parseSaveFile'
+import { readFileAsText } from '../lib/fileIO'
 
-export default function Toolbar(): JSX.Element {
+interface Props {
+  onImportParsed: (parsed: ParsedSaveFile) => void
+}
+
+export default function Toolbar({ onImportParsed }: Props): JSX.Element {
   const { dirty, error, fileName, loadFromFile, saveToFile, newDatabase, clearError } = useAppData()
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const importInputRef = useRef<HTMLInputElement>(null)
+  const [importError, setImportError] = useState<string | null>(null)
+  const [importing, setImporting] = useState(false)
 
   function handleNew(): void {
     if (dirty && !confirm('Discard unsaved changes and start a new, empty database?')) return
@@ -23,6 +32,32 @@ export default function Toolbar(): JSX.Element {
       await loadFromFile(file)
     } catch {
       // error already surfaced via context state
+    }
+  }
+
+  function handleImportClick(): void {
+    setImportError(null)
+    importInputRef.current?.click()
+  }
+
+  async function handleImportFileChosen(e: React.ChangeEvent<HTMLInputElement>): Promise<void> {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    setImporting(true)
+    setImportError(null)
+    try {
+      const text = await readFileAsText(file)
+      const parsed = await parseSaveFile(text)
+      if (parsed.creatures.length === 0) {
+        setImportError('No creatures found in that file.')
+        return
+      }
+      onImportParsed(parsed)
+    } catch (err) {
+      setImportError(err instanceof Error ? err.message : String(err))
+    } finally {
+      setImporting(false)
     }
   }
 
@@ -54,11 +89,21 @@ export default function Toolbar(): JSX.Element {
         <button type="button" className="primary" onClick={saveToFile}>
           Save
         </button>
+        <button type="button" onClick={handleImportClick} disabled={importing} title="Import animals from a Mounts.json or Prospect save file">
+          {importing ? 'Reading…' : 'Import from Save…'}
+        </button>
+        <input
+          ref={importInputRef}
+          type="file"
+          accept="application/json,.json"
+          onChange={handleImportFileChosen}
+          style={{ display: 'none' }}
+        />
       </div>
-      {error && (
+      {(error || importError) && (
         <div className="toolbar-error">
-          {error}
-          <button type="button" className="icon-button" onClick={clearError}>
+          {error ?? importError}
+          <button type="button" className="icon-button" onClick={error ? clearError : () => setImportError(null)}>
             ✕
           </button>
         </div>

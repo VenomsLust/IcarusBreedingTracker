@@ -56,6 +56,9 @@ export interface SpeciesDefinition {
   id: string
   name: string
   classificationId: string
+  // Game save actor class names (e.g. "BP_Tamed_Wolf_C") the user has
+  // confirmed map to this Species, so re-imports don't ask again.
+  gameClassNames?: string[]
 }
 
 export interface Prospect {
@@ -75,6 +78,10 @@ export interface Animal {
   stats: Stats
   status?: AnimalStatus
   prospectId: string | null
+  // Stable in-game actor id (IcarusActorGUID), set on import from a save
+  // file - lets re-imports recognize "this is the same creature" instead of
+  // creating a duplicate. Absent for hand-entered animals.
+  gameActorId?: number
 }
 
 export interface AppData {

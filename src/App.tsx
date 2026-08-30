@@ -10,6 +10,8 @@ import ClassificationEditor from './components/ClassificationEditor'
 import ProspectEditor from './components/ProspectEditor'
 import MateRecommendations from './components/MateRecommendations'
 import CleanupDialog from './components/CleanupDialog'
+import ImportDialog from './components/ImportDialog'
+import type { ParsedSaveFile } from '@shared/gameImport/parseSaveFile'
 
 type Tab = 'animals' | 'recommendations'
 type AnimalFormState = { mode: 'add' } | { mode: 'edit'; animalId: string } | null
@@ -28,6 +30,7 @@ export default function App(): JSX.Element {
   const [classificationEditor, setClassificationEditor] = useState<ClassificationEditorState>(null)
   const [prospectEditor, setProspectEditor] = useState<ProspectEditorState>(null)
   const [cleanupOpen, setCleanupOpen] = useState(false)
+  const [importParsed, setImportParsed] = useState<ParsedSaveFile | null>(null)
 
   useEffect(() => {
     if (selectedSpeciesId && data.species.some((s) => s.id === selectedSpeciesId)) return
@@ -57,7 +60,7 @@ export default function App(): JSX.Element {
 
   return (
     <div className="app-root">
-      <Toolbar />
+      <Toolbar onImportParsed={setImportParsed} />
       <div className="app-shell">
         <Sidebar
           species={data.species}
@@ -172,6 +175,8 @@ export default function App(): JSX.Element {
       {cleanupOpen && (
         <CleanupDialog animals={data.animals} species={data.species} onClose={() => setCleanupOpen(false)} />
       )}
+
+      {importParsed && <ImportDialog parsed={importParsed} onClose={() => setImportParsed(null)} />}
     </div>
   )
 }
