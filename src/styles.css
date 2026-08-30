@@ -508,6 +508,23 @@ table.inheritance-table td {
   max-width: 90vw;
 }
 
+.help-dialog {
+  width: 560px;
+  max-width: 90vw;
+}
+
+.help-dialog code {
+  background: #222327;
+  border-radius: 4px;
+  padding: 2px 5px;
+}
+
+.help-button {
+  width: 30px;
+  border-radius: 50%;
+  font-weight: 700;
+}
+
 .import-mapping-list {
   display: flex;
   flex-direction: column;

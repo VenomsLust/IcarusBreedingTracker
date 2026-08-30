@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { useAppData } from '../context/AppDataContext'
 import { parseSaveFile, type ParsedSaveFile } from '@shared/gameImport/parseSaveFile'
 import { readFileAsText } from '../lib/fileIO'
+import HelpDialog from './HelpDialog'
 
 interface Props {
   onImportParsed: (parsed: ParsedSaveFile) => void
@@ -13,6 +14,7 @@ export default function Toolbar({ onImportParsed }: Props): JSX.Element {
   const importInputRef = useRef<HTMLInputElement>(null)
   const [importError, setImportError] = useState<string | null>(null)
   const [importing, setImporting] = useState(false)
+  const [helpOpen, setHelpOpen] = useState(false)
 
   function handleNew(): void {
     if (dirty && !confirm('Discard unsaved changes and start a new, empty database?')) return
@@ -99,7 +101,11 @@ export default function Toolbar({ onImportParsed }: Props): JSX.Element {
           onChange={handleImportFileChosen}
           style={{ display: 'none' }}
         />
+        <button type="button" className="help-button" onClick={() => setHelpOpen(true)} title="Help importing from a save file">
+          ?
+        </button>
       </div>
+      {helpOpen && <HelpDialog onClose={() => setHelpOpen(false)} />}
       {(error || importError) && (
         <div className="toolbar-error">
           {error ?? importError}

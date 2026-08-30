@@ -182,10 +182,16 @@ export const BUILTIN_SPECIES_TEMPLATES: BuiltinSpeciesTemplate[] = [
   // Combat Mount — Tuskers have the highest health/regen/carry of any
   // mount, built to tank rather than haul or race.
   { name: 'Tuskers', classificationName: 'Combat Mount' },
-  // Swift Mount — Moa-family speed mounts.
+  // Swift Mount — Moa-family speed mounts, plus other fast/agile mounts.
   { name: 'Moas', classificationName: 'Swift Mount' },
   { name: 'Arctic Moas', classificationName: 'Swift Mount' },
   { name: 'Ubis', classificationName: 'Swift Mount' },
+  { name: 'Swamp Birds', classificationName: 'Swift Mount' },
+  { name: 'Raptors', classificationName: 'Swift Mount' },
+  { name: 'Slinkers', classificationName: 'Swift Mount' },
+  { name: 'Zebras', classificationName: 'Swift Mount' },
+  { name: 'Woolly Zebras', classificationName: 'Swift Mount' },
+  { name: 'Horses', classificationName: 'Swift Mount' },
   // Pack Animal — Buffalo, Terrenus, and Woolly Mammoths all prioritize carry capacity.
   { name: 'Buffalos', classificationName: 'Pack Animal' },
   { name: 'Terrenus', classificationName: 'Pack Animal' },
@@ -194,8 +200,10 @@ export const BUILTIN_SPECIES_TEMPLATES: BuiltinSpeciesTemplate[] = [
   { name: 'Chickens', classificationName: 'Ranch Animal' },
   { name: 'Sheep', classificationName: 'Ranch Animal' },
   { name: 'Cows', classificationName: 'Ranch Animal' },
-  // House Pet — cosmetic companions, no combat/utility role.
-  { name: 'Cats', classificationName: 'House Pet' }
+  { name: 'Pigs', classificationName: 'Ranch Animal' },
+  // House Pet — domestic companions, no combat/utility role.
+  { name: 'Cats', classificationName: 'House Pet' },
+  { name: 'Dogs', classificationName: 'House Pet' }
 ]
 
 export function emptyStats(): Stats {
