@@ -346,6 +346,18 @@ table.animal-table tbody tr:hover {
   color: #7fd08a;
 }
 
+.sex-symbol {
+  font-weight: 700;
+}
+
+.sex-male {
+  color: #4c8bf5;
+}
+
+.sex-female {
+  color: #e57373;
+}
+
 .target-hit {
   color: #7fd08a;
   font-weight: 600;

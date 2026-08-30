@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import type { Animal, SpeciesDefinition } from '@shared/types'
 import { findRemovableDeceased } from '@shared/cleanup'
 import { useAppData } from '../context/AppDataContext'
+import SexSymbol from './SexSymbol'
 
 interface Props {
   animals: Animal[]
@@ -99,7 +100,9 @@ export default function CleanupDialog({ animals, species, onClose }: Props): JSX
                   </td>
                   <td>{a.name}</td>
                   <td>{speciesNameById.get(a.speciesId) ?? '—'}</td>
-                  <td>{a.sex}</td>
+                  <td>
+                    <SexSymbol sex={a.sex} />
+                  </td>
                   <td>{a.bloodline}</td>
                 </tr>
               ))}

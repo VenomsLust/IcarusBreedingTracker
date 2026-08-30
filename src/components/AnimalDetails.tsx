@@ -4,6 +4,7 @@ import { computeScore, computeTotal } from '@shared/scoring'
 import { BLOODLINE_DESCRIPTIONS, STAT_DESCRIPTIONS } from '@shared/descriptions'
 import { useAppData } from '../context/AppDataContext'
 import AnimalStatRadar from './AnimalStatRadar'
+import SexSymbol from './SexSymbol'
 
 interface Props {
   species: SpeciesDefinition
@@ -79,7 +80,9 @@ export default function AnimalDetails({ species, animalId, onEdit, onClose, onSe
         <div className="form-grid">
           <div className="detail-field">
             <span className="detail-label">Sex</span>
-            <span>{animal.sex}</span>
+            <span>
+              <SexSymbol sex={animal.sex} />
+            </span>
           </div>
           <div className="detail-field" title={BLOODLINE_DESCRIPTIONS[animal.bloodline]}>
             <span className="detail-label">Bloodline</span>

@@ -12,6 +12,7 @@ import {
 } from '@shared/scoring'
 import { BLOODLINE_DESCRIPTIONS, STAT_DESCRIPTIONS } from '@shared/descriptions'
 import { useAppData } from '../context/AppDataContext'
+import SexSymbol from './SexSymbol'
 
 interface Props {
   species: SpeciesDefinition
@@ -29,8 +30,12 @@ function MatePairTable({ pairs, target }: { pairs: MatePair[]; target: TargetPro
     <table className="animal-table">
       <thead>
         <tr>
-          <th>Male</th>
-          <th>Female</th>
+          <th>
+            <SexSymbol sex="Male" />
+          </th>
+          <th>
+            <SexSymbol sex="Female" />
+          </th>
           {STAT_NAMES.map((stat) => (
             <th key={stat} title={STAT_DESCRIPTIONS[stat]}>
               {stat.charAt(0).toUpperCase() + stat.slice(1)}

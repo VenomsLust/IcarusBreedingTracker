@@ -6,6 +6,7 @@ import { buildExportRows, toExportJson, toExportXml } from '@shared/exportData'
 import { BLOODLINE_DESCRIPTIONS, STAT_DESCRIPTIONS } from '@shared/descriptions'
 import { useAppData } from '../context/AppDataContext'
 import { downloadText } from '../lib/fileIO'
+import SexSymbol from './SexSymbol'
 
 interface Props {
   species: SpeciesDefinition
@@ -149,7 +150,9 @@ export default function AnimalTable({ species, prospectId, onSelectAnimal }: Pro
                 Bloodline{sortIndicator('bloodline')}
               </th>
               <th>Phenotype</th>
-              <th onClick={() => toggleSort('prospect')}>Prospect{sortIndicator('prospect')}</th>
+              {!prospectId && (
+                <th onClick={() => toggleSort('prospect')}>Prospect{sortIndicator('prospect')}</th>
+              )}
               <th onClick={() => toggleSort('status')}>Status{sortIndicator('status')}</th>
               {STAT_NAMES.map((stat) => (
                 <th key={stat} onClick={() => toggleSort(stat)} title={STAT_DESCRIPTIONS[stat]}>
@@ -170,7 +173,9 @@ export default function AnimalTable({ species, prospectId, onSelectAnimal }: Pro
                 onClick={() => onSelectAnimal(animal.id)}
               >
                 <td>{animal.name}</td>
-                <td>{animal.sex}</td>
+                <td>
+                  <SexSymbol sex={animal.sex} />
+                </td>
                 <td>{animal.sireId ? animalNameById.get(animal.sireId) ?? '—' : 'Wild Caught'}</td>
                 <td>{animal.damId ? animalNameById.get(animal.damId) ?? '—' : 'Wild Caught'}</td>
                 <td
@@ -180,7 +185,7 @@ export default function AnimalTable({ species, prospectId, onSelectAnimal }: Pro
                   {animal.bloodline}
                 </td>
                 <td>{animal.phenotype ?? 'Base'}</td>
-                <td>{prospectName}</td>
+                {!prospectId && <td>{prospectName}</td>}
                 <td className={`status-cell status-${status}`}>{status}</td>
                 {STAT_NAMES.map((stat) => {
                   const statTarget = target.statTargets[stat]
