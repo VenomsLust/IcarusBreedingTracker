@@ -50,19 +50,17 @@ export interface TargetsHit {
   possible: number
 }
 
-// How many of the "perfect animal" targets (stats + Bloodline) an offspring
-// estimate actually reaches. Phenotype isn't included — there's no single
-// "correct" phenotype the way there's a top Bloodline, it's just a bonus.
-export function countTargetsHit(estimate: { stats: Stats; bloodline: Bloodline }, target: TargetProfile): TargetsHit {
+// How many of the "perfect animal" stat targets an offspring estimate
+// actually reaches. Bloodline is handled separately by classifyBloodlineTier
+// (it's an all-or-nothing trait, not a fuzzy target to blend into a stat
+// count) and phenotype isn't included — there's no single "correct"
+// phenotype the way there's a top Bloodline, it's just a bonus.
+export function countTargetsHit(estimate: { stats: Stats }, target: TargetProfile): TargetsHit {
   let hit = 0
   let possible = 0
   for (const [stat, statTarget] of Object.entries(target.statTargets) as [(typeof STAT_NAMES)[number], number][]) {
     possible += 1
     if (estimate.stats[stat] === statTarget) hit += 1
-  }
-  if (target.bloodlineTargets) {
-    possible += 1
-    if (target.bloodlineTargets.has(estimate.bloodline)) hit += 1
   }
   return { hit, possible }
 }
@@ -75,11 +73,12 @@ export interface TargetOdds {
   probabilityAllHit: number
 }
 
-// Icarus rolls each stat/trait 40% from the Sire's value, 40% from the Dam's,
-// 20% random-or-mutation. That last 20% has no known distribution (see
+// Icarus rolls each stat 40% from the Sire's value, 40% from the Dam's, 20%
+// random-or-mutation. That last 20% has no known distribution (see
 // AnimalDetails' "Random Roll / Mutation" label), so it's treated as
 // contributing zero chance of landing exactly on a target — these are floor
-// odds from the two known 40% paths, not the true (higher) odds.
+// odds from the two known 40% paths, not the true (higher) odds. Bloodline is
+// excluded here — see classifyBloodlineTier.
 export function computeTargetOdds(a: Animal, b: Animal, target: TargetProfile): TargetOdds {
   let expectedHits = 0
   let probabilityAllHit = 1
@@ -90,13 +89,23 @@ export function computeTargetOdds(a: Animal, b: Animal, target: TargetProfile): 
     probabilityAllHit *= p
   }
 
-  if (target.bloodlineTargets) {
-    const p = (target.bloodlineTargets.has(a.bloodline) ? 0.4 : 0) + (target.bloodlineTargets.has(b.bloodline) ? 0.4 : 0)
-    expectedHits += p
-    probabilityAllHit *= p
-  }
-
   return { expectedHits, probabilityAllHit }
+}
+
+export type BloodlineTier = 'purebred' | 'crossbred' | 'outcross'
+
+// Bloodline doesn't have partial credit the way a stat does (no "8 out of
+// 10 toward target"), so instead of blending it into Expected Hits it sorts
+// a pair into one of three tiers by how many parents already carry a top
+// Bloodline: null when this Classification doesn't favor any Bloodline, so
+// there's nothing to tier by.
+export function classifyBloodlineTier(a: Animal, b: Animal, target: TargetProfile): BloodlineTier | null {
+  if (!target.bloodlineTargets) return null
+  const aHas = target.bloodlineTargets.has(a.bloodline)
+  const bHas = target.bloodlineTargets.has(b.bloodline)
+  if (aHas && bHas) return 'purebred'
+  if (aHas || bHas) return 'crossbred'
+  return 'outcross'
 }
 
 export interface OffspringEstimate {
@@ -141,7 +150,7 @@ export function estimateOffspringCeiling(a: Animal, b: Animal, scoreConfig: Scor
     bloodline,
     phenotype,
     score: computeScore(stats, bloodline, phenotype, scoreConfig),
-    targets: countTargetsHit({ stats, bloodline }, target),
+    targets: countTargetsHit({ stats }, target),
     odds: computeTargetOdds(a, b, target)
   }
 }
@@ -192,4 +201,29 @@ export function rankMatePairs(
     if (targetDiff !== 0) return targetDiff
     return y.estimate.score - x.estimate.score
   })
+}
+
+export interface TieredMatePairs {
+  purebred: MatePair[]
+  crossbred: MatePair[]
+  outcross: MatePair[]
+}
+
+const TIER_CAP = 5
+
+// Splits already-ranked pairs into Bloodline tiers, capping each at
+// TIER_CAP so the working view stays uncluttered. Relative order within
+// each tier is preserved from rankMatePairs (i.e. still stat-Expected-Hits
+// first). Null when this Classification doesn't favor any Bloodline — there's
+// nothing to tier by, so the caller should fall back to a flat list.
+export function groupMatePairsByBloodlineTier(pairs: MatePair[], target: TargetProfile): TieredMatePairs | null {
+  if (!target.bloodlineTargets) return null
+
+  const tiers: TieredMatePairs = { purebred: [], crossbred: [], outcross: [] }
+  for (const pair of pairs) {
+    const tier = classifyBloodlineTier(pair.male, pair.female, target)
+    if (!tier || tiers[tier].length >= TIER_CAP) continue
+    tiers[tier].push(pair)
+  }
+  return tiers
 }

@@ -287,6 +287,14 @@ button.danger:disabled {
   flex: 1;
 }
 
+.mate-tier {
+  margin-bottom: 24px;
+}
+
+.mate-tier h3 {
+  margin-bottom: 8px;
+}
+
 .filters button {
   background: #2a2b2f;
   color: #e6e6e6;
