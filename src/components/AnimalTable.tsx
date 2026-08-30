@@ -42,7 +42,7 @@ export default function AnimalTable({ species, prospectId, onSelectAnimal }: Pro
         status: a.status ?? 'active',
         total: computeTotal(a.stats),
         score: computeScore(a.stats, a.bloodline, a.phenotype, scoreConfig),
-        prospectName: a.prospectId ? prospectNameById.get(a.prospectId) ?? '—' : 'Unassigned'
+        prospectName: a.prospectId ? prospectNameById.get(a.prospectId) ?? '—' : 'Station'
       }))
       .sort((x, y) => {
         let cmp = 0

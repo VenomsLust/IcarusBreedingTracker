@@ -111,7 +111,7 @@ export default function AnimalDetails({ species, animalId, onEdit, onClose, onSe
           </div>
           <div className="detail-field">
             <span className="detail-label">Prospect</span>
-            <span>{prospect?.name ?? 'Unassigned'}</span>
+            <span>{prospect?.name ?? 'Station'}</span>
           </div>
           <div className="detail-field">
             <span className="detail-label">Total</span>

@@ -160,7 +160,7 @@ export default function AnimalForm({ species, animalId, defaultProspectId, onDon
             value={form.prospectId ?? ''}
             onChange={(e) => setForm((f) => ({ ...f, prospectId: e.target.value || null }))}
           >
-            <option value="">Unassigned</option>
+            <option value="">Station</option>
             {data.prospects.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.name}

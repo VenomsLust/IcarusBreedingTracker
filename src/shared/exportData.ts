@@ -29,7 +29,7 @@ export function buildExportRows(
     bloodline: a.bloodline,
     phenotype: a.phenotype ?? 'Base',
     status: a.status ?? 'active',
-    prospect: a.prospectId ? prospectNameById.get(a.prospectId) ?? '' : 'Unassigned',
+    prospect: a.prospectId ? prospectNameById.get(a.prospectId) ?? '' : 'Station',
     stats: { ...a.stats },
     total: computeTotal(a.stats),
     score: computeScore(a.stats, a.bloodline, a.phenotype, scoreConfig)
