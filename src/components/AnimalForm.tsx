@@ -35,9 +35,16 @@ export default function AnimalForm({ species, animalId, defaultProspectId, onDon
   const [saving, setSaving] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
 
-  const candidateParents = data.animals.filter((a) => a.speciesId === species.id && a.id !== form.id)
+  const candidateParents = data.animals.filter((a) => a.speciesId === form.speciesId && a.id !== form.id)
   const sireCandidates = candidateParents.filter((a) => a.sex === 'Male')
   const damCandidates = candidateParents.filter((a) => a.sex === 'Female')
+  const selectedSpeciesName = data.species.find((s) => s.id === form.speciesId)?.name ?? species.name
+
+  // Switching species while adding invalidates any sire/dam already picked
+  // from the previous species' pool.
+  function changeSpecies(speciesId: string): void {
+    setForm((f) => ({ ...f, speciesId, sireId: null, damId: null }))
+  }
 
   async function handleSubmit(e: React.FormEvent): Promise<void> {
     e.preventDefault()
@@ -67,11 +74,24 @@ export default function AnimalForm({ species, animalId, defaultProspectId, onDon
 
   return (
     <form className="animal-form" onSubmit={handleSubmit}>
-      <h2>{existing ? `Edit ${existing.name}` : `Add ${species.name.replace(/s$/, '')}`}</h2>
+      <h2>{existing ? `Edit ${existing.name}` : `Add ${selectedSpeciesName.replace(/s$/, '')}`}</h2>
 
       {formError && <p className="error">{formError}</p>}
 
       <div className="form-grid">
+        {!existing && (
+          <label>
+            Species
+            <select value={form.speciesId} onChange={(e) => changeSpecies(e.target.value)}>
+              {data.species.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
+
         <label>
           Name
           <input
