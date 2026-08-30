@@ -347,7 +347,12 @@ table.animal-table tbody tr:hover {
 }
 
 .sex-symbol {
+  font-size: 17px;
   font-weight: 700;
+  /* font-weight alone barely affects these glyphs in most fonts — a text
+     stroke is what actually makes the strokes read as thicker. */
+  -webkit-text-stroke: 1px currentColor;
+  display: inline-block;
 }
 
 .sex-male {
