@@ -7,6 +7,7 @@ import {
   type AppData,
   type Classification,
   type Prospect,
+  type ScoreConfig,
   type SpeciesDefinition
 } from './types'
 
@@ -23,6 +24,19 @@ const LEGACY_CLASSIFICATION_NAME_BY_SPECIES: Record<string, string> = {
 }
 
 export class ValidationError extends Error {}
+
+function hasDumpStat(scoreConfig: ScoreConfig): boolean {
+  return Object.values(scoreConfig.statWeights).some((w) => w < 0)
+}
+
+// Icarus mechanics don't allow every stat to max out on one animal, so a
+// Classification without a Dump Stat doesn't describe a real breeding goal —
+// backfill Instinct (the most common built-in default) for any migrated
+// Classification missing one, same as other backfilled fields below.
+function ensureDumpStat(scoreConfig: ScoreConfig): ScoreConfig {
+  if (hasDumpStat(scoreConfig)) return scoreConfig
+  return { ...scoreConfig, statWeights: { ...scoreConfig.statWeights, instinct: -1 } }
+}
 
 export function emptyAppData(): AppData {
   return { schemaVersion: SCHEMA_VERSION, species: [], classifications: [], prospects: [], animals: [] }
@@ -79,7 +93,7 @@ function normalize(data: AppData): AppData {
     prospects: migrated.prospects ?? [],
     classifications: migrated.classifications.map((c) => ({
       ...c,
-      scoreConfig: { ...c.scoreConfig, phenotypeBonuses: c.scoreConfig.phenotypeBonuses ?? {} }
+      scoreConfig: ensureDumpStat({ ...c.scoreConfig, phenotypeBonuses: c.scoreConfig.phenotypeBonuses ?? {} })
     })),
     animals: migrated.animals.map((a) => ({ ...a, prospectId: a.prospectId ?? null }))
   }
@@ -185,6 +199,9 @@ export function applyDeleteSpecies(data: AppData, speciesId: string): AppData {
 
 export function applySaveClassification(data: AppData, classification: Classification): AppData {
   if (!classification.name.trim()) throw new ValidationError('Classification name is required')
+  if (!hasDumpStat(classification.scoreConfig)) {
+    throw new ValidationError('Classification must have a Dump Stat (one stat with a negative weight)')
+  }
 
   return {
     ...data,

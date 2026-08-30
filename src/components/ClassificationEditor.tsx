@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { v4 as uuid } from 'uuid'
 import type { Bloodline, Classification, ScoreConfig, StatName } from '@shared/types'
-import { BLOODLINES, STAT_NAMES, defaultScoreConfig } from '@shared/types'
+import { BLOODLINES, STAT_NAMES, dumpStatScoreConfig } from '@shared/types'
 import { BLOODLINE_DESCRIPTIONS, STAT_DESCRIPTIONS } from '@shared/descriptions'
 import { useAppData } from '../context/AppDataContext'
 
@@ -17,8 +17,11 @@ interface PhenotypeBonusRow {
   bonus: string
 }
 
+// A Dump Stat is required (Icarus mechanics don't allow every stat to max
+// out on one animal), so a new Classification starts with one already
+// picked rather than an invalid all-equal state.
 function blankClassification(): Classification {
-  return { id: uuid(), name: '', scoreConfig: defaultScoreConfig() }
+  return { id: uuid(), name: '', scoreConfig: dumpStatScoreConfig('instinct') }
 }
 
 /**
@@ -104,7 +107,7 @@ export default function ClassificationEditor({ classificationId, onClose, onSave
     }))
   }
 
-  function setDumpStat(dumpStat: StatName | ''): void {
+  function setDumpStat(dumpStat: StatName): void {
     const statWeights = Object.fromEntries(
       STAT_NAMES.map((s) => [s, s === dumpStat ? -1 : 1])
     ) as ScoreConfig['statWeights']
@@ -164,10 +167,9 @@ export default function ClassificationEditor({ classificationId, onClose, onSave
             <label>
               Dump stat
               <select
-                value={detectDumpStat(form.scoreConfig.statWeights).dumpStat ?? ''}
-                onChange={(e) => setDumpStat(e.target.value as StatName | '')}
+                value={detectDumpStat(form.scoreConfig.statWeights).dumpStat ?? STAT_NAMES[0]}
+                onChange={(e) => setDumpStat(e.target.value as StatName)}
               >
-                <option value="">None (all stats equal)</option>
                 {STAT_NAMES.map((stat) => (
                   <option key={stat} value={stat} title={STAT_DESCRIPTIONS[stat]}>
                     {stat.charAt(0).toUpperCase() + stat.slice(1)}

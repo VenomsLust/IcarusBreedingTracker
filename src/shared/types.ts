@@ -123,25 +123,37 @@ export function dumpStatScoreConfig(dumpStat: StatName): ScoreConfig {
 }
 
 // Default dump stat + bonuses for each built-in Classification, reasoned from
-// each role (see STAT_DESCRIPTIONS in descriptions.ts): Instinct governs mount
-// cargo / wool-egg-milk output, so it's dead weight on anything that isn't a
-// utility mount or farm animal. Shared by seedData.ts (fresh installs) and
-// validation.ts (backfilling built-ins missing from a migrated save) so the
-// two can't drift apart.
+// each role (see STAT_DESCRIPTIONS in descriptions.ts) and cross-checked
+// against the Icarus wiki (Fitness/Stamina only matters on Mounts; Instinct
+// governs mount cargo / wool-egg-milk output, so it's dead weight on
+// anything that isn't a utility mount or farm animal). Bloodline picks are
+// reasoned from BLOODLINE_DESCRIPTIONS' actual mechanical effects, not just
+// rarity. Shared by seedData.ts (fresh installs) and validation.ts
+// (backfilling built-ins missing from a migrated save) so the two can't
+// drift apart.
 export const BUILTIN_CLASSIFICATION_SCORE_CONFIGS: Record<(typeof BUILTIN_CLASSIFICATION_NAMES)[number], ScoreConfig> = {
   // Instinct (utility output) is irrelevant on a non-mount combat companion.
-  // Alpha/Savage are the rare, combat-favoring bloodlines.
+  // Alpha (+size/melee/health growth) and Savage (lifesteal, offsetting its
+  // own regen penalty) are the rare, combat-favoring bloodlines.
   'Combat Pet': { ...dumpStatScoreConfig('instinct'), constant: 10, bloodlineBonuses: { Alpha: 8, Savage: 4 } },
   // Same reasoning as Combat Pet — cargo/utility isn't the point of a mount built to fight.
-  'Combat Mount': dumpStatScoreConfig('instinct'),
-  // A pure speed mount isn't meant to fight or haul heavy cargo.
-  'Swift Mount': dumpStatScoreConfig('physique'),
-  // Kept out of danger while hauling, so health matters least.
-  'Pack Animal': dumpStatScoreConfig('vigor'),
-  // Not a fighter or a mount — melee damage/carry capacity matters least next to Instinct, its actual output.
-  'Ranch Animal': dumpStatScoreConfig('physique'),
-  // No utility role at all, so Instinct is the clearest dump stat.
-  'House Pet': dumpStatScoreConfig('instinct')
+  'Combat Mount': { ...dumpStatScoreConfig('instinct'), bloodlineBonuses: { Alpha: 8, Savage: 4 } },
+  // A pure speed mount isn't meant to fight or haul heavy cargo. Timid trades
+  // away melee damage (already deprioritized) for +movement speed/level —
+  // a direct match for the role.
+  'Swift Mount': { ...dumpStatScoreConfig('physique'), bloodlineBonuses: { Timid: 6 } },
+  // Kept out of danger while hauling, so health matters least (also has the
+  // smallest HP swing of any stat, per community breeding guides — cheap to
+  // sacrifice). Stout's +weight capacity per level is the role's whole point.
+  'Pack Animal': { ...dumpStatScoreConfig('vigor'), bloodlineBonuses: { Stout: 6 } },
+  // Not a fighter or a mount — melee damage/carry capacity matters least next
+  // to Instinct, its actual output. Careful's -perceived-threat keeps
+  // stationary livestock safer without needing combat stats.
+  'Ranch Animal': { ...dumpStatScoreConfig('physique'), bloodlineBonuses: { Careful: 6 } },
+  // No utility role at all, so Instinct is the clearest dump stat. Ambitious
+  // (+50% XP, no growth stats) suits a low-stakes companion you just want to
+  // level painlessly rather than min-max.
+  'House Pet': { ...dumpStatScoreConfig('instinct'), bloodlineBonuses: { Ambitious: 6 } }
 }
 
 export function emptyStats(): Stats {
