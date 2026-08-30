@@ -630,3 +630,33 @@ table.inheritance-table td {
   max-height: 90vh;
   overflow: auto;
 }
+
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 10;
+}
+
+.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: min(480px, 100vw);
+  background: #1b1c1f;
+  border-left: 1px solid #333;
+  box-shadow: -12px 0 32px rgba(0, 0, 0, 0.5);
+  padding: 24px;
+  overflow-y: auto;
+  animation: drawer-slide-in 0.2s ease-out;
+}
+
+@keyframes drawer-slide-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}

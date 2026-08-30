@@ -57,134 +57,136 @@ export default function AnimalDetails({ species, animalId, onEdit, onClose, onSe
   }
 
   return (
-    <div className="animal-details">
-      <div className="details-header">
-        <h2>
-          {animal.name} <span className={`status-cell status-${status}`}>· {status}</span>
-        </h2>
-        <div className="form-actions">
-          <button type="button" onClick={onClose}>
-            Close
-          </button>
-          <button type="button" className="danger" onClick={handleDelete}>
-            Delete
-          </button>
-          <button type="button" className="primary" onClick={() => onEdit(animal.id)}>
-            Edit
-          </button>
-        </div>
-      </div>
-
-      <div className="form-grid">
-        <div className="detail-field">
-          <span className="detail-label">Sex</span>
-          <span>{animal.sex}</span>
-        </div>
-        <div className="detail-field" title={BLOODLINE_DESCRIPTIONS[animal.bloodline]}>
-          <span className="detail-label">Bloodline</span>
-          <span>{animal.bloodline}</span>
-        </div>
-        <div className="detail-field">
-          <span className="detail-label">Phenotype</span>
-          <span>{animal.phenotype ?? 'Base'}</span>
-        </div>
-        <div className="detail-field">
-          <span className="detail-label">Sire</span>
-          {sire ? (
-            <button type="button" className="link-button" onClick={() => onSelectAnimal(sire.id)}>
-              {sire.name}
+    <div className="drawer-backdrop" onClick={onClose}>
+      <div className="drawer animal-details" onClick={(e) => e.stopPropagation()}>
+        <div className="details-header">
+          <h2>
+            {animal.name} <span className={`status-cell status-${status}`}>· {status}</span>
+          </h2>
+          <div className="form-actions">
+            <button type="button" onClick={onClose}>
+              Close
             </button>
-          ) : (
-            <span>Wild Caught</span>
-          )}
-        </div>
-        <div className="detail-field">
-          <span className="detail-label">Dam</span>
-          {dam ? (
-            <button type="button" className="link-button" onClick={() => onSelectAnimal(dam.id)}>
-              {dam.name}
+            <button type="button" className="danger" onClick={handleDelete}>
+              Delete
             </button>
-          ) : (
-            <span>Wild Caught</span>
-          )}
-        </div>
-        <div className="detail-field">
-          <span className="detail-label">Prospect</span>
-          <span>{prospect?.name ?? 'Unassigned'}</span>
-        </div>
-        <div className="detail-field">
-          <span className="detail-label">Total</span>
-          <span>{total}</span>
-        </div>
-        <div className="detail-field">
-          <span className="detail-label">Score</span>
-          <span className="score-cell">{score}</span>
-        </div>
-      </div>
-
-      <h3>Stats</h3>
-      <div className="stat-radar-wrap">
-        <AnimalStatRadar stats={animal.stats} />
-      </div>
-      <div className="stats-grid">
-        {STAT_NAMES.map((stat) => (
-          <div className="detail-field" key={stat} title={STAT_DESCRIPTIONS[stat]}>
-            <span className="detail-label">{stat.charAt(0).toUpperCase() + stat.slice(1)}</span>
-            <span>{animal.stats[stat]}</span>
+            <button type="button" className="primary" onClick={() => onEdit(animal.id)}>
+              Edit
+            </button>
           </div>
-        ))}
-      </div>
+        </div>
 
-      <h3>Stat Inheritance</h3>
-      {hasParent ? (
-        <table className="inheritance-table">
-          <thead>
-            <tr>
-              <th>Stat</th>
-              <th>Sire</th>
-              <th>Dam</th>
-              <th>{animal.name}</th>
-              <th>Source</th>
-            </tr>
-          </thead>
-          <tbody>
-            {STAT_NAMES.map((stat) => {
-              const value = animal.stats[stat]
-              const sireValue = sire ? sire.stats[stat] : null
-              const damValue = dam ? dam.stats[stat] : null
-              const source = statSource(value, sireValue, damValue)
-              return (
-                <tr key={stat}>
-                  <td title={STAT_DESCRIPTIONS[stat]}>{stat.charAt(0).toUpperCase() + stat.slice(1)}</td>
-                  <td>{sire ? sireValue : 'Wild Caught'}</td>
-                  <td>{dam ? damValue : 'Wild Caught'}</td>
-                  <td>{value}</td>
-                  <td className={`source-${source}`}>
-                    {sourceLabel(source, sire?.name ?? 'Sire', dam?.name ?? 'Dam')}
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
-      ) : (
-        <p className="empty-state">Wild Caught</p>
-      )}
-
-      <h3>Offspring</h3>
-      {offspring.length === 0 ? (
-        <p className="empty-state">None recorded.</p>
-      ) : (
-        <ul className="offspring-list">
-          {offspring.map((o) => (
-            <li key={o.id}>
-              <button type="button" className="link-button" onClick={() => onSelectAnimal(o.id)}>
-                {o.name}
+        <div className="form-grid">
+          <div className="detail-field">
+            <span className="detail-label">Sex</span>
+            <span>{animal.sex}</span>
+          </div>
+          <div className="detail-field" title={BLOODLINE_DESCRIPTIONS[animal.bloodline]}>
+            <span className="detail-label">Bloodline</span>
+            <span>{animal.bloodline}</span>
+          </div>
+          <div className="detail-field">
+            <span className="detail-label">Phenotype</span>
+            <span>{animal.phenotype ?? 'Base'}</span>
+          </div>
+          <div className="detail-field">
+            <span className="detail-label">Sire</span>
+            {sire ? (
+              <button type="button" className="link-button" onClick={() => onSelectAnimal(sire.id)}>
+                {sire.name}
               </button>
-            </li>
+            ) : (
+              <span>Wild Caught</span>
+            )}
+          </div>
+          <div className="detail-field">
+            <span className="detail-label">Dam</span>
+            {dam ? (
+              <button type="button" className="link-button" onClick={() => onSelectAnimal(dam.id)}>
+                {dam.name}
+              </button>
+            ) : (
+              <span>Wild Caught</span>
+            )}
+          </div>
+          <div className="detail-field">
+            <span className="detail-label">Prospect</span>
+            <span>{prospect?.name ?? 'Unassigned'}</span>
+          </div>
+          <div className="detail-field">
+            <span className="detail-label">Total</span>
+            <span>{total}</span>
+          </div>
+          <div className="detail-field">
+            <span className="detail-label">Score</span>
+            <span className="score-cell">{score}</span>
+          </div>
+        </div>
+
+        <h3>Stats</h3>
+        <div className="stat-radar-wrap">
+          <AnimalStatRadar stats={animal.stats} />
+        </div>
+        <div className="stats-grid">
+          {STAT_NAMES.map((stat) => (
+            <div className="detail-field" key={stat} title={STAT_DESCRIPTIONS[stat]}>
+              <span className="detail-label">{stat.charAt(0).toUpperCase() + stat.slice(1)}</span>
+              <span>{animal.stats[stat]}</span>
+            </div>
           ))}
-        </ul>
-      )}
+        </div>
+
+        <h3>Stat Inheritance</h3>
+        {hasParent ? (
+          <table className="inheritance-table">
+            <thead>
+              <tr>
+                <th>Stat</th>
+                <th>Sire</th>
+                <th>Dam</th>
+                <th>{animal.name}</th>
+                <th>Source</th>
+              </tr>
+            </thead>
+            <tbody>
+              {STAT_NAMES.map((stat) => {
+                const value = animal.stats[stat]
+                const sireValue = sire ? sire.stats[stat] : null
+                const damValue = dam ? dam.stats[stat] : null
+                const source = statSource(value, sireValue, damValue)
+                return (
+                  <tr key={stat}>
+                    <td title={STAT_DESCRIPTIONS[stat]}>{stat.charAt(0).toUpperCase() + stat.slice(1)}</td>
+                    <td>{sire ? sireValue : 'Wild Caught'}</td>
+                    <td>{dam ? damValue : 'Wild Caught'}</td>
+                    <td>{value}</td>
+                    <td className={`source-${source}`}>
+                      {sourceLabel(source, sire?.name ?? 'Sire', dam?.name ?? 'Dam')}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        ) : (
+          <p className="empty-state">Wild Caught</p>
+        )}
+
+        <h3>Offspring</h3>
+        {offspring.length === 0 ? (
+          <p className="empty-state">None recorded.</p>
+        ) : (
+          <ul className="offspring-list">
+            {offspring.map((o) => (
+              <li key={o.id}>
+                <button type="button" className="link-button" onClick={() => onSelectAnimal(o.id)}>
+                  {o.name}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   )
 }

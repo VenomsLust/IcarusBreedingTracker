@@ -112,14 +112,6 @@ export default function App(): JSX.Element {
                   defaultProspectId={selectedProspectId}
                   onDone={() => setAnimalForm(null)}
                 />
-              ) : animalDetailId ? (
-                <AnimalDetails
-                  species={selectedSpecies}
-                  animalId={animalDetailId}
-                  onEdit={(id) => setAnimalForm({ mode: 'edit', animalId: id })}
-                  onClose={() => setAnimalDetailId(null)}
-                  onSelectAnimal={setAnimalDetailId}
-                />
               ) : tab === 'animals' ? (
                 <AnimalTable
                   species={selectedSpecies}
@@ -133,6 +125,19 @@ export default function App(): JSX.Element {
           )}
         </main>
       </div>
+
+      {selectedSpecies && animalDetailId && (
+        <AnimalDetails
+          species={selectedSpecies}
+          animalId={animalDetailId}
+          onEdit={(id) => {
+            setAnimalForm({ mode: 'edit', animalId: id })
+            setAnimalDetailId(null)
+          }}
+          onClose={() => setAnimalDetailId(null)}
+          onSelectAnimal={setAnimalDetailId}
+        />
+      )}
 
       {speciesEditor && (
         <SpeciesEditor
