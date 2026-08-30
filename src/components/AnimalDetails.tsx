@@ -3,6 +3,7 @@ import { STAT_NAMES, defaultScoreConfig } from '@shared/types'
 import { computeScore, computeTotal } from '@shared/scoring'
 import { BLOODLINE_DESCRIPTIONS, STAT_DESCRIPTIONS } from '@shared/descriptions'
 import { useAppData } from '../context/AppDataContext'
+import AnimalStatRadar from './AnimalStatRadar'
 
 interface Props {
   species: SpeciesDefinition
@@ -122,6 +123,9 @@ export default function AnimalDetails({ species, animalId, onEdit, onClose, onSe
       </div>
 
       <h3>Stats</h3>
+      <div className="stat-radar-wrap">
+        <AnimalStatRadar stats={animal.stats} />
+      </div>
       <div className="stats-grid">
         {STAT_NAMES.map((stat) => (
           <div className="detail-field" key={stat} title={STAT_DESCRIPTIONS[stat]}>

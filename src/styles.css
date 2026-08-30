@@ -487,6 +487,47 @@ table.inheritance-table td {
   margin-bottom: 16px;
 }
 
+.stat-radar-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.stat-radar {
+  width: 100%;
+  max-width: 300px;
+}
+
+.stat-radar-ring {
+  fill: none;
+  stroke: #2a2b2f;
+  stroke-width: 1;
+}
+
+.stat-radar-axis {
+  stroke: #333;
+  stroke-width: 1;
+}
+
+.stat-radar-shape {
+  fill: #d6a34a;
+  fill-opacity: 0.45;
+  stroke: #e0b04a;
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.stat-radar-dot {
+  fill: #e0b04a;
+}
+
+.stat-radar-label {
+  fill: #aaa;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
 .animal-form label,
 .species-editor label,
 .classification-editor label {
