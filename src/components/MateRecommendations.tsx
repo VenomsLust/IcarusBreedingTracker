@@ -163,13 +163,13 @@ export default function MateRecommendations({ species, prospectId }: Props): JSX
 
       {breedDownPairs && breedDownPairs.length > 0 && (
         <div className="mate-tier">
-          <h3 title="A breeder's first step — Icarus never averages stats, so a 10 everywhere else is worthless on an animal that still passes on a nonzero Dump Stat.">
+          <h3 title="Your first priority as a breeder — get the Dump Stat to 0 in both a Male and a Female before optimizing anything else.">
             Breed Down
           </h3>
           <p className="hint">
-            Ranked by each parent's own current Dump Stat (lower is better, summed across the pair), then by
-            their combined Total excluding the Dump Stat as a tie-breaker. This section drops once a Male and a
-            Female each already carry 0 in the Dump Stat — that's a usable base breeding pair.
+            You don't have a base breeding pair yet — a Male and a Female that both carry 0 in the Dump Stat.
+            These are your best candidates for building one. This section disappears once you have a qualifying
+            pair, since it's time to move on to Bloodline and stats.
           </p>
           <MatePairTable pairs={breedDownPairs} target={target} />
         </div>
@@ -178,17 +178,16 @@ export default function MateRecommendations({ species, prospectId }: Props): JSX
       <p className="hint">
         {selectedBloodline ? (
           <>
-            Purebred and Crossbred are filtered on {selectedBloodline} — both parents carry it, or just one —
-            up to 5 pairs each. Outcross ignores Bloodline entirely and ranks every pair on stats alone.{' '}
+            Purebred pairs already have {selectedBloodline} in both parents; Crossbred pairs have it in just
+            one. Outcross skips Bloodline entirely and just ranks every pair on stats — useful while you don't
+            have a matching pair yet, or don't need one for this pairing.{' '}
           </>
         ) : (
-          <>Pick a Bloodline above to see Purebred/Crossbred pairs. Outcross always ranks every pair on stats alone.{' '}</>
+          <>Pick a Bloodline above to see Purebred and Crossbred pairs. Outcross always ranks every pair on stats alone.{' '}</>
         )}
-        Within a group, ranked by Expected Hits — Icarus rolls each stat 40% Sire / 40% Dam / 20%
-        random-or-mutation, so each stat target (10, or 0 for the Dump Stat) counts for up to 0.8 toward the
-        total depending on how many parents already carry it. Chance of All Targets is the odds this pair hits
-        every stat target at once. Both treat the unpredictable 20% roll as a 0% chance of landing on the
-        target, so they're a floor, not the true odds. Ceiling Targets and predicted Score only break ties.
+        Within a group, pairs are ranked by how likely they are to actually hit your breeding goals, with
+        Ceiling Targets and Predicted Score showing the best case if the dice fall your way (hover a column
+        header for the exact math).
       </p>
 
       {pairs.length === 0 ? (
