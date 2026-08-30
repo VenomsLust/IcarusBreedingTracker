@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { v4 as uuid } from 'uuid'
 import type { SpeciesDefinition } from '@shared/types'
+import { BUILTIN_SPECIES_TEMPLATES } from '@shared/types'
 import { useAppData } from '../context/AppDataContext'
 
 interface Props {
@@ -19,6 +20,20 @@ export default function SpeciesEditor({ speciesId, onClose, onSaved }: Props): J
   const [formError, setFormError] = useState<string | null>(null)
 
   const animalCount = data.animals.filter((a) => a.speciesId === form.id).length
+
+  // Only exact matches on a known starter Species name have a recommended
+  // Classification to reset to, and only if that Classification still
+  // exists (it may have been renamed or deleted) — a renamed/custom Species
+  // has nothing to fall back to, so "Set to Default" stays hidden.
+  const template = BUILTIN_SPECIES_TEMPLATES.find((t) => t.name === form.name.trim())
+  const defaultClassificationId = template
+    ? data.classifications.find((c) => c.name === template.classificationName)?.id ?? null
+    : null
+
+  function resetToDefault(): void {
+    if (!defaultClassificationId) return
+    setForm((f) => ({ ...f, classificationId: defaultClassificationId }))
+  }
 
   async function handleSubmit(e: React.FormEvent): Promise<void> {
     e.preventDefault()
@@ -54,6 +69,16 @@ export default function SpeciesEditor({ speciesId, onClose, onSaved }: Props): J
           Species name
           <input required value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
         </label>
+
+        {defaultClassificationId && (
+          <button
+            type="button"
+            onClick={resetToDefault}
+            title={`Reset the Classification to the recommended default for ${form.name.trim()}`}
+          >
+            Set to Default
+          </button>
+        )}
 
         <label>
           Classification

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { v4 as uuid } from 'uuid'
 import type { Bloodline, Classification, ScoreConfig, StatName } from '@shared/types'
-import { BLOODLINES, STAT_NAMES, dumpStatScoreConfig } from '@shared/types'
+import { BLOODLINES, BUILTIN_CLASSIFICATION_NAMES, BUILTIN_CLASSIFICATION_SCORE_CONFIGS, STAT_NAMES, dumpStatScoreConfig } from '@shared/types'
 import { BLOODLINE_DESCRIPTIONS, STAT_DESCRIPTIONS } from '@shared/descriptions'
 import { useAppData } from '../context/AppDataContext'
 
@@ -39,6 +39,16 @@ function detectDumpStat(statWeights: ScoreConfig['statWeights']): { fitsSimple: 
     return { fitsSimple: true, dumpStat: negatives[0] }
   }
   return { fitsSimple: false, dumpStat: null }
+}
+
+// Only exact matches on one of the built-in names have a known-good default
+// to reset to — a renamed or custom Classification has nothing to fall back
+// to, so "Set to Default" stays hidden for those.
+function builtinDefaultFor(name: string): ScoreConfig | null {
+  const trimmed = name.trim() as (typeof BUILTIN_CLASSIFICATION_NAMES)[number]
+  return (BUILTIN_CLASSIFICATION_NAMES as readonly string[]).includes(trimmed)
+    ? BUILTIN_CLASSIFICATION_SCORE_CONFIGS[trimmed]
+    : null
 }
 
 export default function ClassificationEditor({ classificationId, onClose, onSaved }: Props): JSX.Element {
@@ -139,6 +149,16 @@ export default function ClassificationEditor({ classificationId, onClose, onSave
     setPhenotypeRows((rows) => rows.filter((r) => r.uiId !== uiId))
   }
 
+  function resetToDefault(): void {
+    const builtinDefault = builtinDefaultFor(form.name)
+    if (!builtinDefault) return
+    setForm((f) => ({ ...f, scoreConfig: builtinDefault }))
+    setPhenotypeRows([])
+    setView(detectDumpStat(builtinDefault.statWeights).fitsSimple ? 'simple' : 'advanced')
+  }
+
+  const builtinDefault = builtinDefaultFor(form.name)
+
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <form className="modal classification-editor" onClick={(e) => e.stopPropagation()} onSubmit={handleSubmit}>
@@ -149,6 +169,16 @@ export default function ClassificationEditor({ classificationId, onClose, onSave
           Classification name
           <input required value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
         </label>
+
+        {builtinDefault && (
+          <button
+            type="button"
+            onClick={resetToDefault}
+            title={`Reset the score formula and Bloodline bonuses to the recommended default for ${form.name.trim()}`}
+          >
+            Set to Default
+          </button>
+        )}
 
         <h3>Score formula</h3>
         <p className="hint">Score = Σ(weight × stat) + constant + bloodline bonus + phenotype bonus</p>

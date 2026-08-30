@@ -156,6 +156,40 @@ export const BUILTIN_CLASSIFICATION_SCORE_CONFIGS: Record<(typeof BUILTIN_CLASSI
   'House Pet': { ...dumpStatScoreConfig('instinct'), bloodlineBonuses: { Ambitious: 6 } }
 }
 
+// Starter Species per built-in Classification, reasoned from the Icarus
+// wiki (see BUILTIN_CLASSIFICATION_SCORE_CONFIGS above for the role
+// reasoning). Shared by seedData.ts (fresh installs) and SpeciesEditor's
+// "Set to Default" (resets an existing Species' Classification back to this
+// if its name matches one of these templates).
+export interface BuiltinSpeciesTemplate {
+  name: string
+  classificationName: (typeof BUILTIN_CLASSIFICATION_NAMES)[number]
+}
+
+export const BUILTIN_SPECIES_TEMPLATES: BuiltinSpeciesTemplate[] = [
+  // Combat Pet — non-mount hunting companions (Snare Trap + bait tames).
+  { name: 'Wolves', classificationName: 'Combat Pet' },
+  { name: 'Snow Wolves', classificationName: 'Combat Pet' },
+  { name: 'Wild Boars', classificationName: 'Combat Pet' },
+  { name: 'Hyenas', classificationName: 'Combat Pet' },
+  // Combat Mount — Tuskers have the highest health/regen/carry of any
+  // mount, built to tank rather than haul or race.
+  { name: 'Tuskers', classificationName: 'Combat Mount' },
+  // Swift Mount — Moa-family speed mounts.
+  { name: 'Moas', classificationName: 'Swift Mount' },
+  { name: 'Arctic Moas', classificationName: 'Swift Mount' },
+  { name: 'Ubis', classificationName: 'Swift Mount' },
+  // Pack Animal — Buffalo and Terrenus both prioritize carry capacity.
+  { name: 'Buffalos', classificationName: 'Pack Animal' },
+  { name: 'Terrenus', classificationName: 'Pack Animal' },
+  // Ranch Animal — Homestead livestock (eggs/wool/milk).
+  { name: 'Chickens', classificationName: 'Ranch Animal' },
+  { name: 'Sheep', classificationName: 'Ranch Animal' },
+  { name: 'Cows', classificationName: 'Ranch Animal' },
+  // House Pet — cosmetic companions, no combat/utility role.
+  { name: 'Cats', classificationName: 'House Pet' }
+]
+
 export function emptyStats(): Stats {
   return {
     vigor: 0,
