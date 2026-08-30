@@ -117,53 +117,59 @@ export function AppDataProvider({ children }: { children: ReactNode }): JSX.Elem
     return () => window.removeEventListener('beforeunload', handler)
   }, [dirty])
 
+  // Every setter below uses the functional setData(prev => ...) form rather
+  // than closing over `data` directly. That's what lets independent calls
+  // made back-to-back in the same handler (e.g. ImportDialog creating a
+  // Prospect, then importing animals that reference it) see each other's
+  // changes without needing a render in between - reading `data` directly
+  // would silently operate on a stale snapshot.
   async function saveAnimal(animal: Animal): Promise<void> {
-    setData(applySaveAnimal(data, animal))
+    setData((prev) => applySaveAnimal(prev, animal))
     setDirty(true)
   }
 
   async function importAnimals(animals: Animal[]): Promise<void> {
-    setData(applyImportAnimals(data, animals))
+    setData((prev) => applyImportAnimals(prev, animals))
     setDirty(true)
   }
 
   async function deleteAnimal(animalId: string): Promise<void> {
-    setData(applyDeleteAnimal(data, animalId))
+    setData((prev) => applyDeleteAnimal(prev, animalId))
     setDirty(true)
   }
 
   async function deleteAnimals(animalIds: string[]): Promise<void> {
-    setData(applyDeleteAnimals(data, animalIds))
+    setData((prev) => applyDeleteAnimals(prev, animalIds))
     setDirty(true)
   }
 
   async function saveSpecies(species: SpeciesDefinition): Promise<void> {
-    setData(applySaveSpecies(data, species))
+    setData((prev) => applySaveSpecies(prev, species))
     setDirty(true)
   }
 
   async function deleteSpecies(speciesId: string): Promise<void> {
-    setData(applyDeleteSpecies(data, speciesId))
+    setData((prev) => applyDeleteSpecies(prev, speciesId))
     setDirty(true)
   }
 
   async function saveClassification(classification: Classification): Promise<void> {
-    setData(applySaveClassification(data, classification))
+    setData((prev) => applySaveClassification(prev, classification))
     setDirty(true)
   }
 
   async function deleteClassification(classificationId: string): Promise<void> {
-    setData(applyDeleteClassification(data, classificationId))
+    setData((prev) => applyDeleteClassification(prev, classificationId))
     setDirty(true)
   }
 
   async function saveProspect(prospect: Prospect): Promise<void> {
-    setData(applySaveProspect(data, prospect))
+    setData((prev) => applySaveProspect(prev, prospect))
     setDirty(true)
   }
 
   async function deleteProspect(prospectId: string): Promise<void> {
-    setData(applyDeleteProspect(data, prospectId))
+    setData((prev) => applyDeleteProspect(prev, prospectId))
     setDirty(true)
   }
 

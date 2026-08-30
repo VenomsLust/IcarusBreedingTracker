@@ -192,11 +192,24 @@ export function applyDeleteAnimal(data: AppData, animalId: string): AppData {
   return applyDeleteAnimals(data, [animalId])
 }
 
-// Applies a batch of animal upserts (add or edit) as one pure-function
-// reduction, so validation sees each prior upsert in the same batch - unlike
-// calling applySaveAnimal in a loop against a single stale `data` snapshot.
+// Applies a batch of animal upserts (add or edit) as one pure-function step.
+// The whole batch is merged into `animals` before any validation runs, so a
+// Sire/Dam link to another animal arriving in this same batch resolves
+// regardless of array order - unlike folding animals in one at a time (where
+// a child listed before its newly-added parent would fail validation).
 export function applyImportAnimals(data: AppData, animals: Animal[]): AppData {
-  return animals.reduce((acc, animal) => applySaveAnimal(acc, animal), data)
+  const merged: AppData = {
+    ...data,
+    animals: [...data.animals.filter((a) => !animals.some((n) => n.id === a.id)), ...animals]
+  }
+  for (const animal of animals) {
+    assertSpeciesExists(merged, animal.speciesId)
+    assertStatsValid(animal.stats)
+    assertParentValid(merged, animal, animal.sireId, 'Sire')
+    assertParentValid(merged, animal, animal.damId, 'Dam')
+    assertProspectValid(merged, animal.prospectId)
+  }
+  return merged
 }
 
 export function applyDeleteAnimals(data: AppData, animalIds: string[]): AppData {
