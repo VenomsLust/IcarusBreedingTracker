@@ -81,7 +81,7 @@ export default function AnimalDetails({ species, animalId, onEdit, onClose, onSe
           <div className="detail-field">
             <span className="detail-label">Sex</span>
             <span>
-              <SexSymbol sex={animal.sex} />
+              <SexSymbol sex={animal.sex} /> {animal.sex}
             </span>
           </div>
           <div className="detail-field" title={BLOODLINE_DESCRIPTIONS[animal.bloodline]}>
