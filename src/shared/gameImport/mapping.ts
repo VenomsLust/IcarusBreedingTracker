@@ -50,6 +50,7 @@ export const KNOWN_CLASS_NAME_SPECIES: Record<string, string> = {
   BP_Tame_Sheep_C: 'Sheep',
   BP_Tame_Ram_C: 'Sheep',
   BP_Mount_Buffalo_C: 'Buffalos',
+  BP_Mount_Horse_C: 'Terrenus',
   BP_Mount_Moa_C: 'Moas',
   BP_Mount_WoollyMammoth_C: 'Woolly Mammoths'
 }
