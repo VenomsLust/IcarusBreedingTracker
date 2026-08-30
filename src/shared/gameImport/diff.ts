@@ -1,6 +1,7 @@
 import type { Animal, AppData, Bloodline, SpeciesDefinition, StatName, Stats } from '../types'
 import { STAT_NAMES } from '../types'
 import type { DetectedCreature } from './types'
+import { KNOWN_CLASS_NAME_SPECIES } from './mapping'
 
 export type CreatureAction = 'add' | 'update' | 'conflict' | 'unchanged'
 
@@ -23,10 +24,37 @@ export interface CreatureRow {
   conflicts: FieldChange[]
 }
 
-/** Finds the Species whose gameClassNames includes this creature's actor class, if any. */
+/**
+ * Finds the Species this creature's actor class belongs to: an explicit
+ * gameClassNames mapping first, falling back to KNOWN_CLASS_NAME_SPECIES
+ * (matched by Species name) for common creatures nobody's had to map yet.
+ */
 export function resolveSpecies(actorClassName: string | null, species: SpeciesDefinition[]): SpeciesDefinition | null {
   if (!actorClassName) return null
-  return species.find((s) => s.gameClassNames?.includes(actorClassName)) ?? null
+  const mapped = species.find((s) => s.gameClassNames?.includes(actorClassName))
+  if (mapped) return mapped
+  const knownName = KNOWN_CLASS_NAME_SPECIES[actorClassName]
+  if (!knownName) return null
+  return species.find((s) => s.name === knownName) ?? null
+}
+
+/** Known class names resolved by name (not yet explicitly saved to gameClassNames) among these detected creatures. */
+export function unpersistedKnownMappings(
+  detected: DetectedCreature[],
+  species: SpeciesDefinition[]
+): Array<{ species: SpeciesDefinition; className: string }> {
+  const found = new Map<string, { species: SpeciesDefinition; className: string }>()
+  for (const d of detected) {
+    const className = d.actorClassName
+    if (!className || found.has(className)) continue
+    const knownName = KNOWN_CLASS_NAME_SPECIES[className]
+    if (!knownName) continue
+    const match = species.find((s) => s.name === knownName)
+    if (match && !match.gameClassNames?.includes(className)) {
+      found.set(className, { species: match, className })
+    }
+  }
+  return [...found.values()]
 }
 
 /** Every distinct actorClassName among detected creatures with no Species mapping yet. */
@@ -62,9 +90,22 @@ function resolveParentId(byNameKey: Map<string, string>, speciesId: string, name
   return name ? (byNameKey.get(`${speciesId}:${name}`) ?? null) : null
 }
 
+/** "speciesId:name" keys for every creature in this import batch, so a parent arriving in the same file resolves too. */
+function buildBatchNameKeys(detected: DetectedCreature[], species: SpeciesDefinition[]): Set<string> {
+  const keys = new Set<string>()
+  for (const d of detected) {
+    const speciesId = resolveSpecies(d.actorClassName, species)?.id
+    if (speciesId) keys.add(`${speciesId}:${d.name}`)
+  }
+  return keys
+}
+
 /** Classifies each detected creature against current app data. */
 export function buildRows(detected: DetectedCreature[], data: AppData): CreatureRow[] {
   const byNameKey = buildNameIndex(data.animals)
+  const batchNameKeys = buildBatchNameKeys(detected, data.species)
+  const parentWillResolve = (speciesId: string, name: string): boolean =>
+    resolveParentId(byNameKey, speciesId, name) !== null || (!!name && batchNameKeys.has(`${speciesId}:${name}`))
 
   return detected.map((d) => {
     const speciesId = resolveSpecies(d.actorClassName, data.species)?.id ?? null
@@ -92,10 +133,10 @@ export function buildRows(detected: DetectedCreature[], data: AppData): Creature
     if (existing.gameActorId == null && d.gameActorId != null) {
       changes.push({ field: 'Linked to save file', from: null, to: d.gameActorId })
     }
-    if (existing.sireId === null && resolveParentId(byNameKey, speciesId, d.fatherName)) {
+    if (existing.sireId === null && parentWillResolve(speciesId, d.fatherName)) {
       changes.push({ field: 'Sire', from: 'Wild Caught', to: d.fatherName })
     }
-    if (existing.damId === null && resolveParentId(byNameKey, speciesId, d.motherName)) {
+    if (existing.damId === null && parentWillResolve(speciesId, d.motherName)) {
       changes.push({ field: 'Dam', from: 'Wild Caught', to: d.motherName })
     }
 
@@ -113,12 +154,12 @@ export interface RowDecision {
 }
 
 /**
- * Builds the full list of Animal upserts for a batch of decisions. Sire/Dam
- * names only resolve against animals already tracked before this import -
- * not other creatures in this same batch, since a stable processing order
- * for cross-referencing new siblings isn't guaranteed. A newly-imported
- * family's links backfill naturally the next time you import the same file,
- * once the parents already exist as tracked animals.
+ * Builds the full list of Animal upserts for a batch of decisions. Resolving
+ * Sire/Dam names happens in two passes so a parent and child arriving in the
+ * same file link up on this import, not just on a later re-import: first
+ * every included row is assigned the id it will end up with (existing id, or
+ * a freshly minted one), then a second pass resolves Mother/FatherName
+ * against tracked animals plus every id assigned in the first pass.
  */
 export function applyRows(
   data: AppData,
@@ -126,18 +167,28 @@ export function applyRows(
   newId: () => string,
   targetProspectId: string | null
 ): Animal[] {
-  const byNameKey = buildNameIndex(data.animals)
-  const resolveParent = (name: string, speciesId: string): string | null => resolveParentId(byNameKey, speciesId, name)
+  const batchIndex = buildNameIndex(data.animals)
+  const included = decisions.filter(
+    ({ row, include, conflictResolution }) =>
+      include && row.speciesId && row.action !== 'unchanged' && (row.action !== 'conflict' || conflictResolution)
+  )
 
+  const ids = included.map(({ row, conflictResolution }) => {
+    const id = row.action === 'conflict' && conflictResolution === 'append' ? newId() : (row.existing?.id ?? newId())
+    batchIndex.set(`${row.speciesId}:${row.detected.name}`, id)
+    return id
+  })
+
+  const resolveParent = (name: string, speciesId: string): string | null => resolveParentId(batchIndex, speciesId, name)
   const upserts: Animal[] = []
 
-  for (const { row, include, conflictResolution } of decisions) {
-    if (!include || !row.speciesId) continue
-    const speciesId = row.speciesId
+  included.forEach(({ row, conflictResolution }, i) => {
+    const speciesId = row.speciesId as string
     const d = row.detected
+    const id = ids[i]
 
     if (row.action === 'conflict') {
-      if (!row.existing) continue
+      if (!row.existing) return
       if (conflictResolution === 'replace') {
         const replaced: Animal = {
           ...row.existing,
@@ -151,7 +202,7 @@ export function applyRows(
       } else if (conflictResolution === 'append') {
         upserts.push({ ...row.existing, gameActorId: undefined })
         const appended: Animal = {
-          id: newId(),
+          id,
           speciesId,
           name: d.name,
           sex: d.sex ?? 'Female',
@@ -166,10 +217,8 @@ export function applyRows(
         }
         upserts.push(appended)
       }
-      continue
+      return
     }
-
-    if (row.action === 'unchanged') continue
 
     const existing = row.existing
     const animal: Animal = existing
@@ -181,7 +230,7 @@ export function applyRows(
           damId: existing.damId ?? resolveParent(d.motherName, speciesId)
         }
       : {
-          id: newId(),
+          id,
           speciesId,
           name: d.name,
           sex: d.sex ?? 'Female',
@@ -195,7 +244,7 @@ export function applyRows(
           gameActorId: d.gameActorId ?? undefined
         }
     upserts.push(animal)
-  }
+  })
 
   return upserts
 }

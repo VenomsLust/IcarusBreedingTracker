@@ -37,3 +37,19 @@ export function mapBloodline(lineage: string | null): Bloodline | null {
   if (!lineage) return null
   return (BLOODLINES as readonly string[]).includes(lineage) ? (lineage as Bloodline) : null
 }
+
+// Raw save-file actor class names confirmed against real Icarus data,
+// mapped to the built-in Species name (see BUILTIN_SPECIES_TEMPLATES in
+// types.ts) they belong to - so a fresh import of these common creatures
+// doesn't need manual class-name mapping. Ram and Sheep share one entry:
+// they're the same breeding species, just displayed by in-game sex.
+// Extend this as more real class names get confirmed - never guess one in,
+// since a wrong entry would silently misclassify a whole species.
+export const KNOWN_CLASS_NAME_SPECIES: Record<string, string> = {
+  BP_Tamed_Wolf_C: 'Wolves',
+  BP_Tame_Sheep_C: 'Sheep',
+  BP_Tame_Ram_C: 'Sheep',
+  BP_Mount_Buffalo_C: 'Buffalos',
+  BP_Mount_Moa_C: 'Moas',
+  BP_Mount_WoollyMammoth_C: 'Woolly Mammoths'
+}

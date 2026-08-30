@@ -186,9 +186,10 @@ export const BUILTIN_SPECIES_TEMPLATES: BuiltinSpeciesTemplate[] = [
   { name: 'Moas', classificationName: 'Swift Mount' },
   { name: 'Arctic Moas', classificationName: 'Swift Mount' },
   { name: 'Ubis', classificationName: 'Swift Mount' },
-  // Pack Animal — Buffalo and Terrenus both prioritize carry capacity.
+  // Pack Animal — Buffalo, Terrenus, and Woolly Mammoths all prioritize carry capacity.
   { name: 'Buffalos', classificationName: 'Pack Animal' },
   { name: 'Terrenus', classificationName: 'Pack Animal' },
+  { name: 'Woolly Mammoths', classificationName: 'Pack Animal' },
   // Ranch Animal — Homestead livestock (eggs/wool/milk).
   { name: 'Chickens', classificationName: 'Ranch Animal' },
   { name: 'Sheep', classificationName: 'Ranch Animal' },

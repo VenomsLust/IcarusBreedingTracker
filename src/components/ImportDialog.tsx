@@ -2,7 +2,14 @@ import { useMemo, useState } from 'react'
 import { v4 as uuid } from 'uuid'
 import { useAppData } from '../context/AppDataContext'
 import type { ParsedSaveFile } from '@shared/gameImport/parseSaveFile'
-import { applyRows, buildRows, resolveSpecies, unresolvedClassNames, type RowDecision } from '@shared/gameImport/diff'
+import {
+  applyRows,
+  buildRows,
+  resolveSpecies,
+  unpersistedKnownMappings,
+  unresolvedClassNames,
+  type RowDecision
+} from '@shared/gameImport/diff'
 
 interface Props {
   parsed: ParsedSaveFile
@@ -55,6 +62,10 @@ export default function ImportDialog({ parsed, onClose }: Props): JSX.Element {
     setImporting(true)
     setError(null)
     try {
+      for (const { species, className } of unpersistedKnownMappings(parsed.creatures, data.species)) {
+        await saveSpecies({ ...species, gameClassNames: [...(species.gameClassNames ?? []), className] })
+      }
+
       let targetProspectId: string | null = null
       if (parsed.prospectGameId) {
         if (existingProspect) {
