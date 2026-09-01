@@ -24,8 +24,8 @@ export function buildExportRows(
   return animals.map((a) => ({
     name: a.name,
     sex: a.sex,
-    sire: a.sireId ? animalNameById.get(a.sireId) ?? '' : 'Wild Caught',
-    dam: a.damId ? animalNameById.get(a.damId) ?? '' : 'Wild Caught',
+    sire: a.sireId ? animalNameById.get(a.sireId) ?? '' : (a.sireName ?? 'Wild Caught'),
+    dam: a.damId ? animalNameById.get(a.damId) ?? '' : (a.damName ?? 'Wild Caught'),
     bloodline: a.bloodline,
     phenotype: a.phenotype ?? 'Base',
     status: a.status ?? 'active',

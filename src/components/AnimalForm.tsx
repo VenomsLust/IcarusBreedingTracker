@@ -43,7 +43,7 @@ export default function AnimalForm({ species, animalId, defaultProspectId, onDon
   // Switching species while adding invalidates any sire/dam already picked
   // from the previous species' pool.
   function changeSpecies(speciesId: string): void {
-    setForm((f) => ({ ...f, speciesId, sireId: null, damId: null }))
+    setForm((f) => ({ ...f, speciesId, sireId: null, damId: null, sireName: undefined, damName: undefined }))
   }
 
   async function handleSubmit(e: React.FormEvent): Promise<void> {
@@ -113,9 +113,11 @@ export default function AnimalForm({ species, animalId, defaultProspectId, onDon
           Sire
           <select
             value={form.sireId ?? ''}
-            onChange={(e) => setForm((f) => ({ ...f, sireId: e.target.value || null }))}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, sireId: e.target.value || null, sireName: e.target.value ? undefined : f.sireName }))
+            }
           >
-            <option value="">Wild Caught</option>
+            <option value="">{form.sireName ? `Unmatched (${form.sireName})` : 'Wild Caught'}</option>
             {sireCandidates.map((a) => (
               <option key={a.id} value={a.id}>
                 {a.name}
@@ -128,9 +130,11 @@ export default function AnimalForm({ species, animalId, defaultProspectId, onDon
           Dam
           <select
             value={form.damId ?? ''}
-            onChange={(e) => setForm((f) => ({ ...f, damId: e.target.value || null }))}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, damId: e.target.value || null, damName: e.target.value ? undefined : f.damName }))
+            }
           >
-            <option value="">Wild Caught</option>
+            <option value="">{form.damName ? `Unmatched (${form.damName})` : 'Wild Caught'}</option>
             {damCandidates.map((a) => (
               <option key={a.id} value={a.id}>
                 {a.name}

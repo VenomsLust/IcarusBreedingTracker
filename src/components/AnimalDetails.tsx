@@ -99,7 +99,7 @@ export default function AnimalDetails({ species, animalId, onEdit, onClose, onSe
                 {sire.name}
               </button>
             ) : (
-              <span>Wild Caught</span>
+              <span>{animal.sireName ?? 'Wild Caught'}</span>
             )}
           </div>
           <div className="detail-field">
@@ -109,7 +109,7 @@ export default function AnimalDetails({ species, animalId, onEdit, onClose, onSe
                 {dam.name}
               </button>
             ) : (
-              <span>Wild Caught</span>
+              <span>{animal.damName ?? 'Wild Caught'}</span>
             )}
           </div>
           <div className="detail-field">
@@ -160,11 +160,11 @@ export default function AnimalDetails({ species, animalId, onEdit, onClose, onSe
                 return (
                   <tr key={stat}>
                     <td title={STAT_DESCRIPTIONS[stat]}>{stat.charAt(0).toUpperCase() + stat.slice(1)}</td>
-                    <td>{sire ? sireValue : 'Wild Caught'}</td>
-                    <td>{dam ? damValue : 'Wild Caught'}</td>
+                    <td>{sire ? sireValue : (animal.sireName ?? 'Wild Caught')}</td>
+                    <td>{dam ? damValue : (animal.damName ?? 'Wild Caught')}</td>
                     <td>{value}</td>
                     <td className={`source-${source}`}>
-                      {sourceLabel(source, sire?.name ?? 'Sire', dam?.name ?? 'Dam')}
+                      {sourceLabel(source, sire?.name ?? animal.sireName ?? 'Sire', dam?.name ?? animal.damName ?? 'Dam')}
                     </td>
                   </tr>
                 )
@@ -172,7 +172,7 @@ export default function AnimalDetails({ species, animalId, onEdit, onClose, onSe
             </tbody>
           </table>
         ) : (
-          <p className="empty-state">Wild Caught</p>
+          <p className="empty-state">{animal.sireName ?? animal.damName ?? 'Wild Caught'}</p>
         )}
 
         <h3>Offspring</h3>

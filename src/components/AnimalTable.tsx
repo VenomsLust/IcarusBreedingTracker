@@ -176,8 +176,8 @@ export default function AnimalTable({ species, prospectId, onSelectAnimal }: Pro
                 <td>
                   <SexSymbol sex={animal.sex} />
                 </td>
-                <td>{animal.sireId ? animalNameById.get(animal.sireId) ?? '—' : 'Wild Caught'}</td>
-                <td>{animal.damId ? animalNameById.get(animal.damId) ?? '—' : 'Wild Caught'}</td>
+                <td>{animal.sireId ? animalNameById.get(animal.sireId) ?? '—' : (animal.sireName ?? 'Wild Caught')}</td>
+                <td>{animal.damId ? animalNameById.get(animal.damId) ?? '—' : (animal.damName ?? 'Wild Caught')}</td>
                 <td
                   title={BLOODLINE_DESCRIPTIONS[animal.bloodline]}
                   className={target.bloodlineTargets?.has(animal.bloodline) ? 'target-hit' : ''}

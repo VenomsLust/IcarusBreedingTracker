@@ -73,6 +73,11 @@ export interface Animal {
   sex: Sex
   sireId: string | null
   damId: string | null
+  // Sire/Dam name from a save file's Mother/FatherName when it didn't match
+  // any tracked Animal (not yet imported, or from before tracking started).
+  // Display-only - cleared once sireId/damId resolves to a real Animal.
+  sireName?: string
+  damName?: string
   bloodline: Bloodline
   phenotype: string | null
   stats: Stats

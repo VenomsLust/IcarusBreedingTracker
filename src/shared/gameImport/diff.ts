@@ -90,23 +90,8 @@ function resolveParentId(byNameKey: Map<string, string>, speciesId: string, name
   return name ? (byNameKey.get(`${speciesId}:${name}`) ?? null) : null
 }
 
-/** "speciesId:name" keys for every creature in this import batch, so a parent arriving in the same file resolves too. */
-function buildBatchNameKeys(detected: DetectedCreature[], species: SpeciesDefinition[]): Set<string> {
-  const keys = new Set<string>()
-  for (const d of detected) {
-    const speciesId = resolveSpecies(d.actorClassName, species)?.id
-    if (speciesId) keys.add(`${speciesId}:${d.name}`)
-  }
-  return keys
-}
-
 /** Classifies each detected creature against current app data. */
 export function buildRows(detected: DetectedCreature[], data: AppData): CreatureRow[] {
-  const byNameKey = buildNameIndex(data.animals)
-  const batchNameKeys = buildBatchNameKeys(detected, data.species)
-  const parentWillResolve = (speciesId: string, name: string): boolean =>
-    resolveParentId(byNameKey, speciesId, name) !== null || (!!name && batchNameKeys.has(`${speciesId}:${name}`))
-
   return detected.map((d) => {
     const speciesId = resolveSpecies(d.actorClassName, data.species)?.id ?? null
     if (!speciesId) {
@@ -133,11 +118,11 @@ export function buildRows(detected: DetectedCreature[], data: AppData): Creature
     if (existing.gameActorId == null && d.gameActorId != null) {
       changes.push({ field: 'Linked to save file', from: null, to: d.gameActorId })
     }
-    if (existing.sireId === null && parentWillResolve(speciesId, d.fatherName)) {
-      changes.push({ field: 'Sire', from: 'Wild Caught', to: d.fatherName })
+    if (existing.sireId === null && d.fatherName && d.fatherName !== existing.sireName) {
+      changes.push({ field: 'Sire', from: existing.sireName ?? 'Wild Caught', to: d.fatherName })
     }
-    if (existing.damId === null && parentWillResolve(speciesId, d.motherName)) {
-      changes.push({ field: 'Dam', from: 'Wild Caught', to: d.motherName })
+    if (existing.damId === null && d.motherName && d.motherName !== existing.damName) {
+      changes.push({ field: 'Dam', from: existing.damName ?? 'Wild Caught', to: d.motherName })
     }
 
     if (conflicts.length > 0) return { detected: d, speciesId, existing, action: 'conflict', changes, conflicts }
@@ -180,6 +165,16 @@ export function applyRows(
   })
 
   const resolveParent = (name: string, speciesId: string): string | null => resolveParentId(batchIndex, speciesId, name)
+  // A Mother/FatherName that doesn't match a tracked Animal is kept as plain
+  // text (sireName/damName) rather than silently discarded to "Wild Caught".
+  const resolveParentRef = (
+    name: string,
+    speciesId: string,
+    fallbackName: string | undefined
+  ): { id: string | null; name: string | undefined } => {
+    const id = resolveParent(name, speciesId)
+    return { id, name: id ? undefined : (name || fallbackName) }
+  }
   const upserts: Animal[] = []
 
   included.forEach(({ row, conflictResolution }, i) => {
@@ -201,13 +196,17 @@ export function applyRows(
         upserts.push(replaced)
       } else if (conflictResolution === 'append') {
         upserts.push({ ...row.existing, gameActorId: undefined })
+        const sireRef = resolveParentRef(d.fatherName, speciesId, undefined)
+        const damRef = resolveParentRef(d.motherName, speciesId, undefined)
         const appended: Animal = {
           id,
           speciesId,
           name: d.name,
           sex: d.sex ?? 'Female',
-          sireId: resolveParent(d.fatherName, speciesId),
-          damId: resolveParent(d.motherName, speciesId),
+          sireId: sireRef.id,
+          sireName: sireRef.name,
+          damId: damRef.id,
+          damName: damRef.name,
           bloodline: (d.bloodline ?? 'Wild') as Bloodline,
           phenotype: d.phenotype,
           stats: d.stats,
@@ -221,28 +220,39 @@ export function applyRows(
     }
 
     const existing = row.existing
-    const animal: Animal = existing
-      ? {
-          ...existing,
-          name: d.name,
-          gameActorId: d.gameActorId ?? existing.gameActorId,
-          sireId: existing.sireId ?? resolveParent(d.fatherName, speciesId),
-          damId: existing.damId ?? resolveParent(d.motherName, speciesId)
-        }
-      : {
-          id,
-          speciesId,
-          name: d.name,
-          sex: d.sex ?? 'Female',
-          sireId: resolveParent(d.fatherName, speciesId),
-          damId: resolveParent(d.motherName, speciesId),
-          bloodline: (d.bloodline ?? 'Wild') as Bloodline,
-          phenotype: d.phenotype,
-          stats: d.stats,
-          status: 'active',
-          prospectId: targetProspectId,
-          gameActorId: d.gameActorId ?? undefined
-        }
+    let animal: Animal
+    if (existing) {
+      const sireRef = existing.sireId ? { id: existing.sireId, name: undefined } : resolveParentRef(d.fatherName, speciesId, existing.sireName)
+      const damRef = existing.damId ? { id: existing.damId, name: undefined } : resolveParentRef(d.motherName, speciesId, existing.damName)
+      animal = {
+        ...existing,
+        name: d.name,
+        gameActorId: d.gameActorId ?? existing.gameActorId,
+        sireId: sireRef.id,
+        sireName: sireRef.name,
+        damId: damRef.id,
+        damName: damRef.name
+      }
+    } else {
+      const sireRef = resolveParentRef(d.fatherName, speciesId, undefined)
+      const damRef = resolveParentRef(d.motherName, speciesId, undefined)
+      animal = {
+        id,
+        speciesId,
+        name: d.name,
+        sex: d.sex ?? 'Female',
+        sireId: sireRef.id,
+        sireName: sireRef.name,
+        damId: damRef.id,
+        damName: damRef.name,
+        bloodline: (d.bloodline ?? 'Wild') as Bloodline,
+        phenotype: d.phenotype,
+        stats: d.stats,
+        status: 'active',
+        prospectId: targetProspectId,
+        gameActorId: d.gameActorId ?? undefined
+      }
+    }
     upserts.push(animal)
   })
 
