@@ -37,7 +37,7 @@ function MatePairTable({ pairs, target }: { pairs: MatePair[]; target: TargetPro
           ))}
           <th title="Inherited trait affecting growth and behavior — hover a value for details">Bloodline</th>
           <th>Phenotype</th>
-          <th title="Both parents' combined stat total, Dump Stat excluded — what this pair is ranked by, after Dump Stat">
+          <th title="Sum of this pairing's best-case stats shown above (Dump Stat excluded) — capped the same way one real animal's stats are, not doubled across both parents">
             Stat Total
           </th>
         </tr>
@@ -170,9 +170,9 @@ export default function MateRecommendations({ species, prospectId }: Props): JSX
         ) : (
           <>Pick a Bloodline above to see Purebred and Crossbred pairs. Outcross always ranks every pair on stats alone.{' '}</>
         )}
-        Within a group, pairs are ranked by the parents' own Dump Stat first (lowest wins), then by their
-        combined Stat Total. The stat columns above show each pairing's ceiling — the best value either parent
-        could actually pass on for that stat.
+        Within a group, pairs are ranked by the parents' own Dump Stat first (lowest wins), then by Stat
+        Total — the sum of this pairing's best-case stats (each column showing whichever parent could
+        actually pass on the better value).
       </p>
 
       {pairs.length === 0 ? (

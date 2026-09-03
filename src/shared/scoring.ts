@@ -59,14 +59,16 @@ export interface OffspringEstimate {
 }
 
 /**
- * Ceiling estimate for a candidate mate pair, shown alongside the pair (not
- * used for ranking — see MatePair.dumpTotal/statTotal). Icarus inherits each
- * stat as one of the two parents' values (never averaged), so the
- * best-possible outcome per stat is whichever parent's value scores higher
- * under this Classification's weight for that stat — the higher value for a
- * positively-weighted stat, but the lower value for a dump stat (negative
- * weight); bloodline and phenotype are likewise whichever parent's trait
- * scores better under this Classification's formula.
+ * Ceiling estimate for a candidate mate pair — MatePair.statTotal is derived
+ * from this (see buildMatePairs), so it's bounded the same way a real
+ * animal's stats are (10 per stat) rather than able to run up to double that
+ * by adding two parents' stats together. Icarus inherits each stat as one of
+ * the two parents' values (never averaged), so the best-possible outcome per
+ * stat is whichever parent's value scores higher under this Classification's
+ * weight for that stat — the higher value for a positively-weighted stat,
+ * but the lower value for a dump stat (negative weight); bloodline and
+ * phenotype are likewise whichever parent's trait scores better under this
+ * Classification's formula.
  */
 export function estimateOffspringCeiling(a: Animal, b: Animal, scoreConfig: ScoreConfig): OffspringEstimate {
   const stats = Object.fromEntries(
@@ -92,10 +94,15 @@ export interface MatePair {
   male: Animal
   female: Animal
   estimate: OffspringEstimate
-  // Both parents' actual (not ceiling) values, summed across the Dump
-  // Stat(s) and across everything else — see rankMatePairs for why ranking
-  // uses the parents' real stats rather than the ceiling estimate above.
+  // Both parents' own actual Dump Stat values, summed — how close this real
+  // pair already is to a qualifying 0-Dump-Stat base pair. Deliberately not
+  // the ceiling estimate: breeding progress is about where these two
+  // specific animals actually stand today, not their best-case offspring.
   dumpTotal: number
+  // Sum of the ceiling estimate's non-Dump stats (see estimateOffspringCeiling)
+  // — this pairing's best-case single-offspring total, so it's capped the
+  // same way one real animal's stats are rather than able to exceed that by
+  // adding two parents together.
   statTotal: number
 }
 
@@ -121,8 +128,10 @@ function buildMatePairs(pool: Animal[], scoreConfig: ScoreConfig, options?: { fo
         continue
       }
       const dumpTotal = dumpStats.reduce((sum, stat) => sum + male.stats[stat] + female.stats[stat], 0)
-      const statTotal = computeTotal(male.stats) + computeTotal(female.stats) - dumpTotal
-      pairs.push({ male, female, estimate: estimateOffspringCeiling(male, female, scoreConfig), dumpTotal, statTotal })
+      const estimate = estimateOffspringCeiling(male, female, scoreConfig)
+      const dumpCeiling = dumpStats.reduce((sum, stat) => sum + estimate.stats[stat], 0)
+      const statTotal = computeTotal(estimate.stats) - dumpCeiling
+      pairs.push({ male, female, estimate, dumpTotal, statTotal })
     }
   }
   return pairs
