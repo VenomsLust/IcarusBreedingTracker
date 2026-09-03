@@ -45,53 +45,6 @@ export function computeTargetProfile(config: ScoreConfig): TargetProfile {
   return { statTargets, bloodlineTargets }
 }
 
-export interface TargetsHit {
-  hit: number
-  possible: number
-}
-
-// How many of the "perfect animal" stat targets an offspring estimate
-// actually reaches. Bloodline is handled separately by filterMatePairsByBloodline
-// (it's an all-or-nothing trait, not a fuzzy target to blend into a stat
-// count) and phenotype isn't included — there's no single "correct"
-// phenotype the way there's a top Bloodline, it's just a bonus.
-export function countTargetsHit(estimate: { stats: Stats }, target: TargetProfile): TargetsHit {
-  let hit = 0
-  let possible = 0
-  for (const [stat, statTarget] of Object.entries(target.statTargets) as [(typeof STAT_NAMES)[number], number][]) {
-    possible += 1
-    if (estimate.stats[stat] === statTarget) hit += 1
-  }
-  return { hit, possible }
-}
-
-export interface TargetOdds {
-  // Sum of each target's hit probability — a smooth, comparable "how good is
-  // this pairing" number even when no single target is likely.
-  expectedHits: number
-  // Chance every target is hit simultaneously (independence assumed).
-  probabilityAllHit: number
-}
-
-// Icarus rolls each stat 40% from the Sire's value, 40% from the Dam's, 20%
-// random-or-mutation. That last 20% has no known distribution (see
-// AnimalDetails' "Random Roll / Mutation" label), so it's treated as
-// contributing zero chance of landing exactly on a target — these are floor
-// odds from the two known 40% paths, not the true (higher) odds. Bloodline is
-// excluded here — see filterMatePairsByBloodline.
-export function computeTargetOdds(a: Animal, b: Animal, target: TargetProfile): TargetOdds {
-  let expectedHits = 0
-  let probabilityAllHit = 1
-
-  for (const [stat, statTarget] of Object.entries(target.statTargets) as [(typeof STAT_NAMES)[number], number][]) {
-    const p = (a.stats[stat] === statTarget ? 0.4 : 0) + (b.stats[stat] === statTarget ? 0.4 : 0)
-    expectedHits += p
-    probabilityAllHit *= p
-  }
-
-  return { expectedHits, probabilityAllHit }
-}
-
 // The Bloodline a user picks (in MateRecommendations) to favor — defaults to
 // whichever Bloodline carries this Classification's top bonus, if any.
 export function favoredBloodline(target: TargetProfile): Bloodline | null {
@@ -103,16 +56,14 @@ export interface OffspringEstimate {
   stats: Stats
   bloodline: Bloodline
   phenotype: string | null
-  score: number
-  targets: TargetsHit
-  odds: TargetOdds
 }
 
 /**
- * Ceiling estimate for a candidate mate pair. Icarus inherits each stat as
- * one of the two parents' values (never averaged), so the best-possible
- * outcome per stat is whichever parent's value scores higher under this
- * Classification's weight for that stat — the higher value for a
+ * Ceiling estimate for a candidate mate pair, shown alongside the pair (not
+ * used for ranking — see MatePair.dumpTotal/statTotal). Icarus inherits each
+ * stat as one of the two parents' values (never averaged), so the
+ * best-possible outcome per stat is whichever parent's value scores higher
+ * under this Classification's weight for that stat — the higher value for a
  * positively-weighted stat, but the lower value for a dump stat (negative
  * weight); bloodline and phenotype are likewise whichever parent's trait
  * scores better under this Classification's formula.
@@ -134,22 +85,18 @@ export function estimateOffspringCeiling(a: Animal, b: Animal, scoreConfig: Scor
   const phenotypeBonusB = scoreConfig.phenotypeBonuses[phenotypeKey(b.phenotype)] ?? 0
   const phenotype = phenotypeBonusA >= phenotypeBonusB ? a.phenotype : b.phenotype
 
-  const target = computeTargetProfile(scoreConfig)
-
-  return {
-    stats,
-    bloodline,
-    phenotype,
-    score: computeScore(stats, bloodline, phenotype, scoreConfig),
-    targets: countTargetsHit({ stats }, target),
-    odds: computeTargetOdds(a, b, target)
-  }
+  return { stats, bloodline, phenotype }
 }
 
 export interface MatePair {
   male: Animal
   female: Animal
   estimate: OffspringEstimate
+  // Both parents' actual (not ceiling) values, summed across the Dump
+  // Stat(s) and across everything else — see rankMatePairs for why ranking
+  // uses the parents' real stats rather than the ceiling estimate above.
+  dumpTotal: number
+  statTotal: number
 }
 
 // Retired and deceased animals aren't candidates for breeding.
@@ -165,6 +112,7 @@ function filterBreedingPool(animals: Animal[], speciesId: string): Animal[] {
 function buildMatePairs(pool: Animal[], scoreConfig: ScoreConfig, options?: { forAnimalId?: string }): MatePair[] {
   const males = pool.filter((a) => a.sex === 'Male')
   const females = pool.filter((a) => a.sex === 'Female')
+  const dumpStats = STAT_NAMES.filter((stat) => scoreConfig.statWeights[stat] < 0)
 
   const pairs: MatePair[] = []
   for (const male of males) {
@@ -172,12 +120,18 @@ function buildMatePairs(pool: Animal[], scoreConfig: ScoreConfig, options?: { fo
       if (options?.forAnimalId && male.id !== options.forAnimalId && female.id !== options.forAnimalId) {
         continue
       }
-      pairs.push({ male, female, estimate: estimateOffspringCeiling(male, female, scoreConfig) })
+      const dumpTotal = dumpStats.reduce((sum, stat) => sum + male.stats[stat] + female.stats[stat], 0)
+      const statTotal = computeTotal(male.stats) + computeTotal(female.stats) - dumpTotal
+      pairs.push({ male, female, estimate: estimateOffspringCeiling(male, female, scoreConfig), dumpTotal, statTotal })
     }
   }
   return pairs
 }
 
+// Icarus never averages stats — a 10 in every other stat is worthless on an
+// animal that still passes on a nonzero Dump Stat — so pairs are ranked by
+// the parents' own current Dump Stat first (lower is better, summed across
+// the pair), then by their combined Total excluding the Dump Stat.
 export function rankMatePairs(
   animals: Animal[],
   speciesId: string,
@@ -187,18 +141,10 @@ export function rankMatePairs(
   const pool = filterBreedingPool(animals, speciesId)
   const pairs = buildMatePairs(pool, scoreConfig, options)
 
-  // Rank primarily by expected targets hit — the sum of each target's actual
-  // 40%-Sire/40%-Dam odds — rather than just whether the ceiling reaches it,
-  // since a pair that's one likely stat away from perfect should outrank one
-  // that's technically capable of perfect but needs six unlikely rolls to get
-  // there. Ceiling targets.hit breaks ties (prefer the higher upside), then
-  // predicted Score.
   return pairs.sort((x, y) => {
-    const oddsDiff = y.estimate.odds.expectedHits - x.estimate.odds.expectedHits
-    if (oddsDiff !== 0) return oddsDiff
-    const targetDiff = y.estimate.targets.hit - x.estimate.targets.hit
-    if (targetDiff !== 0) return targetDiff
-    return y.estimate.score - x.estimate.score
+    const dumpDiff = x.dumpTotal - y.dumpTotal
+    if (dumpDiff !== 0) return dumpDiff
+    return y.statTotal - x.statTotal
   })
 }
 
@@ -206,14 +152,13 @@ export function rankMatePairs(
 export const RECOMMENDATION_CAP = 5
 
 // A breeder's first step: drive the Dump Stat down to 0 in both parents
-// before chasing anything else, since Icarus never averages stats — a 10 in
-// every other stat is worthless on an animal that still passes on a
-// nonzero Dump Stat. Ranks candidate pairs by each parent's own current
-// Dump Stat (lower is better, summed across the pair), then by their
-// combined Total excluding the Dump Stat as a tie-breaker. Returns null
-// once there's nothing left to breed down — no Dump Stat is configured for
-// this Classification, or a Male and a Female already each carry 0 in every
-// Dump Stat (a usable base breeding pair already exists).
+// before chasing anything else — a usable base breeding pair is a Male and a
+// Female that already each carry 0 in every Dump Stat. Until that exists,
+// this surfaces the top RECOMMENDATION_CAP pairs off the same ranking
+// rankMatePairs already produces (Dump Stat first, then Stat Total), since
+// that's exactly the order that builds toward a qualifying pair fastest.
+// Returns null once there's nothing left to breed down — no Dump Stat is
+// configured for this Classification, or a qualifying pair already exists.
 export function computeBreedDownPairs(
   animals: Animal[],
   speciesId: string,
@@ -229,18 +174,7 @@ export function computeBreedDownPairs(
   const hasBasePair = pool.some((a) => a.sex === 'Male' && isZeroDump(a)) && pool.some((a) => a.sex === 'Female' && isZeroDump(a))
   if (hasBasePair) return null
 
-  const dumpTotal = (pair: MatePair): number =>
-    dumpStats.reduce((sum, stat) => sum + pair.male.stats[stat] + pair.female.stats[stat], 0)
-  const nonDumpTotal = (pair: MatePair): number =>
-    computeTotal(pair.male.stats) + computeTotal(pair.female.stats) - dumpTotal(pair)
-
-  return buildMatePairs(pool, scoreConfig, options)
-    .sort((x, y) => {
-      const dumpDiff = dumpTotal(x) - dumpTotal(y)
-      if (dumpDiff !== 0) return dumpDiff
-      return nonDumpTotal(y) - nonDumpTotal(x)
-    })
-    .slice(0, RECOMMENDATION_CAP)
+  return rankMatePairs(animals, speciesId, scoreConfig, options).slice(0, RECOMMENDATION_CAP)
 }
 
 export interface BloodlineFilteredPairs {
@@ -252,7 +186,7 @@ export interface BloodlineFilteredPairs {
 // this Classification's configured favorite — see favoredBloodline for the
 // default) into Purebred (both parents carry it) and Crossbred (one does),
 // each capped at RECOMMENDATION_CAP. Order within each is preserved from the
-// input (still stat-Expected-Hits first). A pair where neither parent
+// input (still Dump Stat, then Stat Total). A pair where neither parent
 // carries it belongs to neither bucket — Outcross ignores Bloodline
 // entirely and is just the plain stat-ranked pair list, so it isn't built
 // here.

@@ -19,12 +19,6 @@ interface Props {
   prospectId: string | null
 }
 
-function formatChance(p: number): string {
-  if (p <= 0) return '0%'
-  if (p < 0.001) return '<0.1%'
-  return `${(p * 100).toFixed(1)}%`
-}
-
 function MatePairTable({ pairs, target }: { pairs: MatePair[]; target: TargetProfile }): JSX.Element {
   return (
     <table className="animal-table">
@@ -43,20 +37,13 @@ function MatePairTable({ pairs, target }: { pairs: MatePair[]; target: TargetPro
           ))}
           <th title="Inherited trait affecting growth and behavior — hover a value for details">Bloodline</th>
           <th>Phenotype</th>
-          <th title="How many of the 7 stats (10, or 0 for the Dump Stat) this pairing can reach at best">
-            Ceiling Targets
+          <th title="Both parents' combined stat total, Dump Stat excluded — what this pair is ranked by, after Dump Stat">
+            Stat Total
           </th>
-          <th title="Sum of each stat target's actual hit odds (40% Sire + 40% Dam per target already carried by a parent) — floor odds, excludes the 20% random/mutation roll">
-            Expected Hits
-          </th>
-          <th title="Floor odds this pair hits every stat target at once, assuming independence — excludes the 20% random/mutation roll">
-            Chance of All Targets
-          </th>
-          <th>Predicted Score</th>
         </tr>
       </thead>
       <tbody>
-        {pairs.map(({ male, female, estimate }) => (
+        {pairs.map(({ male, female, estimate, statTotal }) => (
           <tr key={`${male.id}-${female.id}`}>
             <td>{male.name}</td>
             <td>{female.name}</td>
@@ -76,14 +63,7 @@ function MatePairTable({ pairs, target }: { pairs: MatePair[]; target: TargetPro
               {estimate.bloodline}
             </td>
             <td>{estimate.phenotype ?? 'Base'}</td>
-            <td>
-              {estimate.targets.hit}/{estimate.targets.possible}
-            </td>
-            <td>
-              {estimate.odds.expectedHits.toFixed(1)}/{estimate.targets.possible}
-            </td>
-            <td>{formatChance(estimate.odds.probabilityAllHit)}</td>
-            <td className="score-cell">{estimate.score}</td>
+            <td className="score-cell">{statTotal}</td>
           </tr>
         ))}
       </tbody>
@@ -190,9 +170,9 @@ export default function MateRecommendations({ species, prospectId }: Props): JSX
         ) : (
           <>Pick a Bloodline above to see Purebred and Crossbred pairs. Outcross always ranks every pair on stats alone.{' '}</>
         )}
-        Within a group, pairs are ranked by how likely they are to actually hit your breeding goals, with
-        Ceiling Targets and Predicted Score showing the best case if the dice fall your way (hover a column
-        header for the exact math).
+        Within a group, pairs are ranked by the parents' own Dump Stat first (lowest wins), then by their
+        combined Stat Total. The stat columns above show each pairing's ceiling — the best value either parent
+        could actually pass on for that stat.
       </p>
 
       {pairs.length === 0 ? (
