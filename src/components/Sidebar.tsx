@@ -70,23 +70,34 @@ export default function Sidebar({
 
       <h2 className="section-spacer">Species</h2>
       <ul className="species-list">
-        {[...species].sort((a, b) => a.name.localeCompare(b.name)).map((s) => (
-          <li key={s.id} className={s.id === selectedSpeciesId ? 'active' : ''}>
-            <button className="species-name" onClick={() => onSelectSpecies(s.id)}>
-              {s.name}
-            </button>
-            <span className="count-badge" title="Active animals of this species">
-              {animals.filter((a) => a.speciesId === s.id && isActive(a)).length}
-            </span>
-            <button
-              className="icon-button"
-              title={`Edit ${s.name}`}
-              onClick={() => onEditSpecies(s.id)}
-            >
-              ✎
-            </button>
-          </li>
-        ))}
+        {[...species]
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .map((s) => {
+            const count = animals.filter(
+              (a) =>
+                a.speciesId === s.id &&
+                isActive(a) &&
+                (selectedProspectId === null || a.prospectId === selectedProspectId)
+            ).length
+            if (count === 0) return null
+            return (
+              <li key={s.id} className={s.id === selectedSpeciesId ? 'active' : ''}>
+                <button className="species-name" onClick={() => onSelectSpecies(s.id)}>
+                  {s.name}
+                </button>
+                <span className="count-badge" title="Active animals of this species">
+                  {count}
+                </span>
+                <button
+                  className="icon-button"
+                  title={`Edit ${s.name}`}
+                  onClick={() => onEditSpecies(s.id)}
+                >
+                  ✎
+                </button>
+              </li>
+            )
+          })}
       </ul>
       <button className="add-species" onClick={onAddSpecies}>
         + Add Species
