@@ -35,7 +35,6 @@ export type AnimalStatus = 'active' | 'retired' | 'deceased'
 
 export interface ScoreConfig {
   statWeights: Record<StatName, number>
-  constant: number
   bloodlineBonuses: Partial<Record<Bloodline, number>>
   // Keyed by the exact Phenotype text (case-sensitive). The base/blank
   // phenotype (stored as `null` on Animal) is not addressable here.
@@ -119,7 +118,6 @@ export function defaultScoreConfig(): ScoreConfig {
       adaptation: 1,
       instinct: 1
     },
-    constant: 0,
     bloodlineBonuses: {},
     phenotypeBonuses: {}
   }
@@ -147,7 +145,7 @@ export const BUILTIN_CLASSIFICATION_SCORE_CONFIGS: Record<(typeof BUILTIN_CLASSI
   // Instinct (utility output) is irrelevant on a non-mount combat companion.
   // Alpha (+size/melee/health growth) and Savage (lifesteal, offsetting its
   // own regen penalty) are the rare, combat-favoring bloodlines.
-  'Combat Pet': { ...dumpStatScoreConfig('instinct'), constant: 10, bloodlineBonuses: { Alpha: 8, Savage: 4 } },
+  'Combat Pet': { ...dumpStatScoreConfig('instinct'), bloodlineBonuses: { Alpha: 8, Savage: 4 } },
   // Same reasoning as Combat Pet — cargo/utility isn't the point of a mount built to fight.
   'Combat Mount': { ...dumpStatScoreConfig('instinct'), bloodlineBonuses: { Alpha: 8, Savage: 4 } },
   // A pure speed mount isn't meant to fight or haul heavy cargo. Timid trades

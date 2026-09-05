@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import type { Animal, SpeciesDefinition } from '@shared/types'
 import { STAT_NAMES, defaultScoreConfig } from '@shared/types'
-import { computeScore, computeTargetProfile, computeTotal } from '@shared/scoring'
+import { computeTargetProfile, computeTotal } from '@shared/scoring'
 import { buildExportRows, toExportJson, toExportXml } from '@shared/exportData'
 import { BLOODLINE_DESCRIPTIONS, STAT_DESCRIPTIONS } from '@shared/descriptions'
 import { useAppData } from '../context/AppDataContext'
@@ -14,11 +14,11 @@ interface Props {
   onSelectAnimal: (animalId: string) => void
 }
 
-type SortKey = 'name' | 'sex' | 'bloodline' | 'prospect' | 'status' | 'total' | 'score' | (typeof STAT_NAMES)[number]
+type SortKey = 'name' | 'sex' | 'bloodline' | 'prospect' | 'status' | 'total' | (typeof STAT_NAMES)[number]
 
 export default function AnimalTable({ species, prospectId, onSelectAnimal }: Props): JSX.Element {
   const { data, deleteAnimal } = useAppData()
-  const [sortKey, setSortKey] = useState<SortKey>('score')
+  const [sortKey, setSortKey] = useState<SortKey>('total')
   const [sortDir, setSortDir] = useState<1 | -1>(-1)
   const [nameFilter, setNameFilter] = useState('')
   const [sexFilter, setSexFilter] = useState<'' | 'Male' | 'Female'>('')
@@ -42,7 +42,6 @@ export default function AnimalTable({ species, prospectId, onSelectAnimal }: Pro
         animal: a,
         status: a.status ?? 'active',
         total: computeTotal(a.stats),
-        score: computeScore(a.stats, a.bloodline, a.phenotype, scoreConfig),
         prospectName: a.prospectId ? prospectNameById.get(a.prospectId) ?? '—' : 'Station'
       }))
       .sort((x, y) => {
@@ -53,7 +52,6 @@ export default function AnimalTable({ species, prospectId, onSelectAnimal }: Pro
         else if (sortKey === 'prospect') cmp = x.prospectName.localeCompare(y.prospectName)
         else if (sortKey === 'status') cmp = x.status.localeCompare(y.status)
         else if (sortKey === 'total') cmp = x.total - y.total
-        else if (sortKey === 'score') cmp = x.score - y.score
         else cmp = x.animal.stats[sortKey] - y.animal.stats[sortKey]
         return cmp * sortDir
       })
@@ -84,12 +82,7 @@ export default function AnimalTable({ species, prospectId, onSelectAnimal }: Pro
     const prospectLabel = prospectId
       ? data.prospects.find((p) => p.id === prospectId)?.name ?? 'Unknown Prospect'
       : 'All Prospects'
-    const exportRows = buildExportRows(
-      rows.map((r) => r.animal),
-      scoreConfig,
-      animalNameById,
-      prospectNameById
-    )
+    const exportRows = buildExportRows(rows.map((r) => r.animal), animalNameById, prospectNameById)
     const content =
       format === 'json'
         ? toExportJson(species.name, prospectLabel, exportRows)
@@ -161,12 +154,11 @@ export default function AnimalTable({ species, prospectId, onSelectAnimal }: Pro
                 </th>
               ))}
               <th onClick={() => toggleSort('total')}>Total{sortIndicator('total')}</th>
-              <th onClick={() => toggleSort('score')}>Score{sortIndicator('score')}</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
-            {rows.map(({ animal, status, total, score, prospectName }) => (
+            {rows.map(({ animal, status, total, prospectName }) => (
               <tr
                 key={animal.id}
                 className={status !== 'active' ? 'inactive-row' : ''}
@@ -196,8 +188,7 @@ export default function AnimalTable({ species, prospectId, onSelectAnimal }: Pro
                     </td>
                   )
                 })}
-                <td>{total}</td>
-                <td className="score-cell">{score}</td>
+                <td className="total-cell">{total}</td>
                 <td>
                   <button className="icon-button" onClick={(e) => handleDelete(animal, e)} title={`Delete ${animal.name}`}>
                     🗑

@@ -279,7 +279,6 @@ export function applyDeleteProspect(data: AppData, prospectId: string): AppData 
 }
 
 function scoreConfigMatchesDefault(config: ScoreConfig, builtin: ScoreConfig): boolean {
-  if (config.constant !== builtin.constant) return false
   if (STAT_NAMES.some((s) => config.statWeights[s] !== builtin.statWeights[s])) return false
 
   const bloodlineKeys = new Set([...Object.keys(config.bloodlineBonuses), ...Object.keys(builtin.bloodlineBonuses)])

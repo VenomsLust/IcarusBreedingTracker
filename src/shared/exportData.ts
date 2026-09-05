@@ -1,5 +1,5 @@
-import { STAT_NAMES, type Animal, type ScoreConfig } from './types'
-import { computeScore, computeTotal } from './scoring'
+import { STAT_NAMES, type Animal } from './types'
+import { computeTotal } from './scoring'
 
 export interface ExportAnimalRow {
   name: string
@@ -12,12 +12,10 @@ export interface ExportAnimalRow {
   prospect: string
   stats: Record<string, number>
   total: number
-  score: number
 }
 
 export function buildExportRows(
   animals: Animal[],
-  scoreConfig: ScoreConfig,
   animalNameById: Map<string, string>,
   prospectNameById: Map<string, string>
 ): ExportAnimalRow[] {
@@ -31,8 +29,7 @@ export function buildExportRows(
     status: a.status ?? 'active',
     prospect: a.prospectId ? prospectNameById.get(a.prospectId) ?? '' : 'Station',
     stats: { ...a.stats },
-    total: computeTotal(a.stats),
-    score: computeScore(a.stats, a.bloodline, a.phenotype, scoreConfig)
+    total: computeTotal(a.stats)
   }))
 }
 
@@ -62,7 +59,6 @@ export function toExportXml(speciesName: string, prospectLabel: string, rows: Ex
         `status="${escapeXml(r.status)}" prospect="${escapeXml(r.prospect)}">\n` +
         `    <stats ${statsAttrs} />\n` +
         `    <total>${r.total}</total>\n` +
-        `    <score>${r.score}</score>\n` +
         `  </animal>`
       )
     })

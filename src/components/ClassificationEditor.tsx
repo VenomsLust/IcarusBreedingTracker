@@ -174,14 +174,17 @@ export default function ClassificationEditor({ classificationId, onClose, onSave
           <button
             type="button"
             onClick={resetToDefault}
-            title={`Reset the score formula and Bloodline bonuses to the recommended default for ${form.name.trim()}`}
+            title={`Reset the stat weights and Bloodline bonuses to the recommended default for ${form.name.trim()}`}
           >
             Set to Default
           </button>
         )}
 
-        <h3>Score formula</h3>
-        <p className="hint">Score = Σ(weight × stat) + constant + bloodline bonus + phenotype bonus</p>
+        <h3>Stat weights</h3>
+        <p className="hint">
+          Positive weight marks a stat you're breeding for; negative marks the Dump Stat you're breeding down.
+          Drives Stat Total target highlighting and Mate Recommendations.
+        </p>
 
         <div className="view-toggle">
           <button type="button" className={view === 'simple' ? 'active' : ''} onClick={() => setView('simple')}>
@@ -220,19 +223,6 @@ export default function ClassificationEditor({ classificationId, onClose, onSave
                 />
               </label>
             ))}
-            <label>
-              Constant
-              <input
-                type="number"
-                value={form.scoreConfig.constant}
-                onChange={(e) =>
-                  setForm((f) => ({
-                    ...f,
-                    scoreConfig: { ...f.scoreConfig, constant: Number(e.target.value) || 0 }
-                  }))
-                }
-              />
-            </label>
           </div>
         )}
 
@@ -253,7 +243,7 @@ export default function ClassificationEditor({ classificationId, onClose, onSave
 
         <h3>Phenotype bonuses</h3>
         <p className="hint">
-          Optional — give a specific Phenotype a Score bonus if you're breeding to target it. Must match the
+          Optional — give a specific Phenotype a bonus if you're breeding to target it. Must match the
           Phenotype text on the animal exactly (case-sensitive).
         </p>
         <div className="phenotype-bonus-list">

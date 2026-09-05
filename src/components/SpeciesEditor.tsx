@@ -96,8 +96,8 @@ export default function SpeciesEditor({ speciesId, onClose, onSaved }: Props): J
           </select>
         </label>
         <p className="hint">
-          Classification determines the scoring formula (stat weights, Bloodline and Phenotype bonuses) used for
-          this species' Score and Mate Recommendations. Manage Classifications from the sidebar.
+          Classification determines the stat weights and Bloodline/Phenotype bonuses used for this species'
+          Stat Total highlighting and Mate Recommendations. Manage Classifications from the sidebar.
         </p>
 
         <div className="form-actions">

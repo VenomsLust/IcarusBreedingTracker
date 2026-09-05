@@ -1,6 +1,6 @@
 import type { SpeciesDefinition } from '@shared/types'
-import { STAT_NAMES, defaultScoreConfig } from '@shared/types'
-import { computeScore, computeTotal } from '@shared/scoring'
+import { STAT_NAMES } from '@shared/types'
+import { computeTotal } from '@shared/scoring'
 import { BLOODLINE_DESCRIPTIONS, STAT_DESCRIPTIONS } from '@shared/descriptions'
 import { useAppData } from '../context/AppDataContext'
 import AnimalStatRadar from './AnimalStatRadar'
@@ -40,10 +40,7 @@ export default function AnimalDetails({ species, animalId, onEdit, onClose, onSe
   const animal = data.animals.find((a) => a.id === animalId)
   if (!animal) return null
 
-  const scoreConfig =
-    data.classifications.find((c) => c.id === species.classificationId)?.scoreConfig ?? defaultScoreConfig()
   const total = computeTotal(animal.stats)
-  const score = computeScore(animal.stats, animal.bloodline, animal.phenotype, scoreConfig)
   const sire = animal.sireId ? data.animals.find((a) => a.id === animal.sireId) ?? null : null
   const dam = animal.damId ? data.animals.find((a) => a.id === animal.damId) ?? null : null
   const prospect = animal.prospectId ? data.prospects.find((p) => p.id === animal.prospectId) ?? null : null
@@ -118,11 +115,7 @@ export default function AnimalDetails({ species, animalId, onEdit, onClose, onSe
           </div>
           <div className="detail-field">
             <span className="detail-label">Total</span>
-            <span>{total}</span>
-          </div>
-          <div className="detail-field">
-            <span className="detail-label">Score</span>
-            <span className="score-cell">{score}</span>
+            <span className="total-cell">{total}</span>
           </div>
         </div>
 

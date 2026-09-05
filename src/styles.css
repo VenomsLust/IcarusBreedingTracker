@@ -341,7 +341,7 @@ table.animal-table tbody tr:hover {
   cursor: pointer;
 }
 
-.score-cell {
+.total-cell {
   font-weight: 600;
   color: #7fd08a;
 }

@@ -4,18 +4,6 @@ export function computeTotal(stats: Stats): number {
   return STAT_NAMES.reduce((sum, stat) => sum + stats[stat], 0)
 }
 
-export function computeScore(
-  stats: Stats,
-  bloodline: Bloodline,
-  phenotype: string | null,
-  config: ScoreConfig
-): number {
-  const weighted = STAT_NAMES.reduce((sum, stat) => sum + config.statWeights[stat] * stats[stat], 0)
-  const bloodlineBonus = config.bloodlineBonuses[bloodline] ?? 0
-  const phenotypeBonus = config.phenotypeBonuses[phenotypeKey(phenotype)] ?? 0
-  return weighted + config.constant + bloodlineBonus + phenotypeBonus
-}
-
 export interface TargetProfile {
   // Only stats whose weight is nonzero have a target — a zero-weighted stat
   // doesn't matter to this Classification, so it's neither hit nor missed.

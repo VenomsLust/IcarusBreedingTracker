@@ -63,7 +63,7 @@ function MatePairTable({ pairs, target }: { pairs: MatePair[]; target: TargetPro
               {estimate.bloodline}
             </td>
             <td>{estimate.phenotype ?? 'Base'}</td>
-            <td className="score-cell">{statTotal}</td>
+            <td className="total-cell">{statTotal}</td>
           </tr>
         ))}
       </tbody>
