@@ -31,7 +31,7 @@ function MatePairTable({ pairs, target }: { pairs: MatePair[]; target: TargetPro
             <SexSymbol sex="Female" />
           </th>
           {STAT_NAMES.map((stat) => (
-            <th key={stat} title={STAT_DESCRIPTIONS[stat]}>
+            <th key={stat} title={STAT_DESCRIPTIONS[stat]} className={target.statTargets[stat] === 0 ? 'dump-stat-header' : ''}>
               {stat.charAt(0).toUpperCase() + stat.slice(1)}
             </th>
           ))}

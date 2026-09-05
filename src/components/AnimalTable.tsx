@@ -148,7 +148,12 @@ export default function AnimalTable({ species, prospectId, onSelectAnimal }: Pro
               )}
               <th onClick={() => toggleSort('status')}>Status{sortIndicator('status')}</th>
               {STAT_NAMES.map((stat) => (
-                <th key={stat} onClick={() => toggleSort(stat)} title={STAT_DESCRIPTIONS[stat]}>
+                <th
+                  key={stat}
+                  onClick={() => toggleSort(stat)}
+                  title={STAT_DESCRIPTIONS[stat]}
+                  className={target.statTargets[stat] === 0 ? 'dump-stat-header' : ''}
+                >
                   {stat.charAt(0).toUpperCase() + stat.slice(1)}
                   {sortIndicator(stat)}
                 </th>

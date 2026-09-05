@@ -368,6 +368,10 @@ table.animal-table tbody tr:hover {
   font-weight: 600;
 }
 
+table.animal-table th.dump-stat-header {
+  color: #d9c46a;
+}
+
 table.animal-table tbody tr.inactive-row {
   opacity: 0.5;
   font-style: italic;
