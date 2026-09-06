@@ -92,6 +92,12 @@ export interface MatePair {
   // same way one real animal's stats are rather than able to exceed that by
   // adding two parents together.
   statTotal: number
+  // Both parents' own actual non-Dump stats, summed — a statTotal tie means
+  // multiple pairs share the same ceiling, but a pair whose real parents
+  // already carry more of that ceiling between them needs a smaller reach
+  // from either parent to actually produce it. Used only to break statTotal
+  // ties, never as the primary ranking (see rankMatePairs).
+  realTotal: number
 }
 
 // Retired and deceased animals aren't candidates for breeding.
@@ -119,7 +125,8 @@ function buildMatePairs(pool: Animal[], scoreConfig: ScoreConfig, options?: { fo
       const estimate = estimateOffspringCeiling(male, female, scoreConfig)
       const dumpCeiling = dumpStats.reduce((sum, stat) => sum + estimate.stats[stat], 0)
       const statTotal = computeTotal(estimate.stats) - dumpCeiling
-      pairs.push({ male, female, estimate, dumpTotal, statTotal })
+      const realTotal = computeTotal(male.stats) + computeTotal(female.stats) - dumpTotal
+      pairs.push({ male, female, estimate, dumpTotal, statTotal, realTotal })
     }
   }
   return pairs
@@ -128,7 +135,11 @@ function buildMatePairs(pool: Animal[], scoreConfig: ScoreConfig, options?: { fo
 // Icarus never averages stats — a 10 in every other stat is worthless on an
 // animal that still passes on a nonzero Dump Stat — so pairs are ranked by
 // the parents' own current Dump Stat first (lower is better, summed across
-// the pair), then by their combined Total excluding the Dump Stat.
+// the pair), then by their combined Total excluding the Dump Stat. A
+// statTotal tie (common — many pairs share the same per-stat ceiling) breaks
+// on realTotal: the pair whose real parents already carry more of that
+// ceiling between them needs a smaller inheritance reach to actually produce
+// it, so it's the more dependable pick even though the best case is the same.
 export function rankMatePairs(
   animals: Animal[],
   speciesId: string,
@@ -141,7 +152,9 @@ export function rankMatePairs(
   return pairs.sort((x, y) => {
     const dumpDiff = x.dumpTotal - y.dumpTotal
     if (dumpDiff !== 0) return dumpDiff
-    return y.statTotal - x.statTotal
+    const statDiff = y.statTotal - x.statTotal
+    if (statDiff !== 0) return statDiff
+    return y.realTotal - x.realTotal
   })
 }
 

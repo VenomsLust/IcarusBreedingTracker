@@ -172,7 +172,8 @@ export default function MateRecommendations({ species, prospectId }: Props): JSX
         )}
         Within a group, pairs are ranked by the parents' own Dump Stat first (lowest wins), then by Stat
         Total — the sum of this pairing's best-case stats (each column showing whichever parent could
-        actually pass on the better value).
+        actually pass on the better value). Ties on both go to whichever pair's real parents already carry
+        more of that ceiling between them, since less luck is needed to actually produce it.
       </p>
 
       {pairs.length === 0 ? (
