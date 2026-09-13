@@ -164,15 +164,23 @@ export function applyRows(
     return id
   })
 
-  const resolveParent = (name: string, speciesId: string): string | null => resolveParentId(batchIndex, speciesId, name)
+  // Excludes a match against selfId: two same-named animals of the same
+  // species can collide in batchIndex (a Map keeps only the last id written
+  // per name), so a later-processed animal can otherwise appear to resolve
+  // its parent name to itself.
+  const resolveParent = (name: string, speciesId: string, selfId: string): string | null => {
+    const id = resolveParentId(batchIndex, speciesId, name)
+    return id === selfId ? null : id
+  }
   // A Mother/FatherName that doesn't match a tracked Animal is kept as plain
   // text (sireName/damName) rather than silently discarded to "Wild Caught".
   const resolveParentRef = (
     name: string,
     speciesId: string,
+    selfId: string,
     fallbackName: string | undefined
   ): { id: string | null; name: string | undefined } => {
-    const id = resolveParent(name, speciesId)
+    const id = resolveParent(name, speciesId, selfId)
     return { id, name: id ? undefined : (name || fallbackName) }
   }
   const upserts: Animal[] = []
@@ -196,8 +204,8 @@ export function applyRows(
         upserts.push(replaced)
       } else if (conflictResolution === 'append') {
         upserts.push({ ...row.existing, gameActorId: undefined })
-        const sireRef = resolveParentRef(d.fatherName, speciesId, undefined)
-        const damRef = resolveParentRef(d.motherName, speciesId, undefined)
+        const sireRef = resolveParentRef(d.fatherName, speciesId, id, undefined)
+        const damRef = resolveParentRef(d.motherName, speciesId, id, undefined)
         const appended: Animal = {
           id,
           speciesId,
@@ -222,8 +230,12 @@ export function applyRows(
     const existing = row.existing
     let animal: Animal
     if (existing) {
-      const sireRef = existing.sireId ? { id: existing.sireId, name: undefined } : resolveParentRef(d.fatherName, speciesId, existing.sireName)
-      const damRef = existing.damId ? { id: existing.damId, name: undefined } : resolveParentRef(d.motherName, speciesId, existing.damName)
+      const sireRef = existing.sireId
+        ? { id: existing.sireId, name: undefined }
+        : resolveParentRef(d.fatherName, speciesId, id, existing.sireName)
+      const damRef = existing.damId
+        ? { id: existing.damId, name: undefined }
+        : resolveParentRef(d.motherName, speciesId, id, existing.damName)
       animal = {
         ...existing,
         name: d.name,
@@ -234,8 +246,8 @@ export function applyRows(
         damName: damRef.name
       }
     } else {
-      const sireRef = resolveParentRef(d.fatherName, speciesId, undefined)
-      const damRef = resolveParentRef(d.motherName, speciesId, undefined)
+      const sireRef = resolveParentRef(d.fatherName, speciesId, id, undefined)
+      const damRef = resolveParentRef(d.motherName, speciesId, id, undefined)
       animal = {
         id,
         speciesId,
