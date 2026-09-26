@@ -182,6 +182,9 @@ export const BUILTIN_SPECIES_TEMPLATES: BuiltinSpeciesTemplate[] = [
   { name: 'Snow Wolves', classificationName: 'Combat Pet' },
   { name: 'Wild Boars', classificationName: 'Combat Pet' },
   { name: 'Hyenas', classificationName: 'Combat Pet' },
+  // Week 251 (Sept 2026): Snare Trap + bait tame; a nocturnal fighter that
+  // out-damages Wolves at night when talented for combat.
+  { name: 'Kiwis', classificationName: 'Combat Pet' },
   // Combat Mount — Tuskers have the highest health/regen/carry of any
   // mount, built to tank rather than haul or race.
   { name: 'Tuskers', classificationName: 'Combat Mount' },

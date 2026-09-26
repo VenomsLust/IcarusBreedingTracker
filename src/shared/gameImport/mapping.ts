@@ -55,6 +55,7 @@ export const KNOWN_CLASS_NAME_SPECIES: Record<string, string> = {
   BP_Tame_Boar_C: 'Wild Boars',
   BP_Tame_Dog_D2_C: 'Dogs',
   BP_Tame_Pig_C: 'Pigs',
+  BP_Tamed_Kiwi_C: 'Kiwis',
   BP_Mount_Buffalo_C: 'Buffalos',
   BP_Mount_Horse_C: 'Terrenus',
   BP_Mount_Moa_C: 'Moas',
