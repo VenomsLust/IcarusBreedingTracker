@@ -173,7 +173,6 @@ export default function AnimalForm({ species, animalId, defaultProspectId, onDon
             onChange={(e) => setForm((f) => ({ ...f, status: e.target.value as AnimalStatus }))}
           >
             <option value="active">Active</option>
-            <option value="retired">Retired</option>
             <option value="deceased">Deceased</option>
           </select>
         </label>

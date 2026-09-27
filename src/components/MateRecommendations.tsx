@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
-import type { Bloodline, SpeciesDefinition } from '@shared/types'
-import { BLOODLINES, STAT_NAMES, defaultScoreConfig } from '@shared/types'
+import type { Bloodline, ProspectFilter, SpeciesDefinition } from '@shared/types'
+import { BLOODLINES, STATION_FILTER, STAT_NAMES, defaultScoreConfig, matchesProspectFilter } from '@shared/types'
 import type { MatePair, TargetProfile } from '@shared/scoring'
 import {
   RECOMMENDATION_CAP,
@@ -16,7 +16,7 @@ import SexSymbol from './SexSymbol'
 
 interface Props {
   species: SpeciesDefinition
-  prospectId: string | null
+  prospectId: ProspectFilter
 }
 
 function MatePairTable({ pairs, target }: { pairs: MatePair[]; target: TargetProfile }): JSX.Element {
@@ -76,11 +76,11 @@ export default function MateRecommendations({ species, prospectId }: Props): JSX
   const [focusAnimalId, setFocusAnimalId] = useState<string>('')
   const [selectedBloodline, setSelectedBloodline] = useState<Bloodline | ''>('')
 
-  // Retired/deceased animals aren't breeding candidates, so they're excluded
+  // Deceased animals aren't breeding candidates, so they're excluded
   // here too — otherwise picking one in the "Best mates for" dropdown would
   // always yield an empty result.
   const animals = data.animals.filter(
-    (a) => a.speciesId === species.id && a.prospectId === prospectId && (a.status ?? 'active') === 'active'
+    (a) => a.speciesId === species.id && matchesProspectFilter(a, prospectId) && (a.status ?? 'active') === 'active'
   )
   const scoreConfig =
     data.classifications.find((c) => c.id === species.classificationId)?.scoreConfig ?? defaultScoreConfig()
@@ -116,11 +116,12 @@ export default function MateRecommendations({ species, prospectId }: Props): JSX
     [target]
   )
 
-  if (!prospectId) {
+  // Station animals are in storage — breeding only happens out on a Prospect.
+  if (!prospectId || prospectId === STATION_FILTER) {
     return (
       <p className="empty-state">
-        Select a specific Prospect in the sidebar to see mate recommendations — animals on different
-        Prospects can't be bred together.
+        Select a specific Prospect in the sidebar to see mate recommendations — animals must be deployed on
+        the same Prospect to breed, and Station animals are in storage.
       </p>
     )
   }

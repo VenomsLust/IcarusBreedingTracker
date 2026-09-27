@@ -381,7 +381,7 @@ table.animal-table tbody tr.inactive-row {
   text-transform: capitalize;
 }
 
-.status-retired {
+.status-update {
   color: #d6a34a;
 }
 

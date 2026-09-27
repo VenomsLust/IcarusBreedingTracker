@@ -12,6 +12,7 @@ import MateRecommendations from './components/MateRecommendations'
 import CleanupDialog from './components/CleanupDialog'
 import ImportDialog from './components/ImportDialog'
 import type { ParsedSaveFile } from '@shared/gameImport/parseSaveFile'
+import { STATION_FILTER, prospectIdForFilter, type ProspectFilter } from '@shared/types'
 
 type Tab = 'animals' | 'recommendations'
 type AnimalFormState = { mode: 'add' } | { mode: 'edit'; animalId: string } | null
@@ -22,7 +23,7 @@ type ProspectEditorState = { mode: 'add' } | { mode: 'edit'; prospectId: string 
 export default function App(): JSX.Element {
   const { data } = useAppData()
   const [selectedSpeciesId, setSelectedSpeciesId] = useState<string | null>(null)
-  const [selectedProspectId, setSelectedProspectId] = useState<string | null>(null)
+  const [selectedProspectId, setSelectedProspectId] = useState<ProspectFilter>(null)
   const [tab, setTab] = useState<Tab>('animals')
   const [animalForm, setAnimalForm] = useState<AnimalFormState>(null)
   const [animalDetailId, setAnimalDetailId] = useState<string | null>(null)
@@ -38,7 +39,11 @@ export default function App(): JSX.Element {
   }, [data, selectedSpeciesId])
 
   useEffect(() => {
-    if (selectedProspectId && !data.prospects.some((p) => p.id === selectedProspectId)) {
+    if (
+      selectedProspectId &&
+      selectedProspectId !== STATION_FILTER &&
+      !data.prospects.some((p) => p.id === selectedProspectId)
+    ) {
       setSelectedProspectId(null)
     }
   }, [data, selectedProspectId])
@@ -112,7 +117,7 @@ export default function App(): JSX.Element {
                 <AnimalForm
                   species={selectedSpecies}
                   animalId={animalForm.mode === 'edit' ? animalForm.animalId : null}
-                  defaultProspectId={selectedProspectId}
+                  defaultProspectId={prospectIdForFilter(selectedProspectId)}
                   onDone={() => setAnimalForm(null)}
                 />
               ) : tab === 'animals' ? (

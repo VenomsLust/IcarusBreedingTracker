@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
-import type { Animal, SpeciesDefinition } from '@shared/types'
-import { STAT_NAMES, defaultScoreConfig } from '@shared/types'
-import { computeTargetProfile, computeTotal } from '@shared/scoring'
+import type { Animal, ProspectFilter, SpeciesDefinition } from '@shared/types'
+import { STATION_FILTER, STAT_NAMES, defaultScoreConfig, matchesProspectFilter } from '@shared/types'
+import { compareAnimalRank, computeTargetProfile, computeTotal } from '@shared/scoring'
 import { buildExportRows, toExportJson, toExportXml } from '@shared/exportData'
 import { BLOODLINE_DESCRIPTIONS, STAT_DESCRIPTIONS } from '@shared/descriptions'
 import { useAppData } from '../context/AppDataContext'
@@ -10,22 +10,22 @@ import SexSymbol from './SexSymbol'
 
 interface Props {
   species: SpeciesDefinition
-  prospectId: string | null
+  prospectId: ProspectFilter
   onSelectAnimal: (animalId: string) => void
 }
 
-type SortKey = 'name' | 'sex' | 'bloodline' | 'prospect' | 'status' | 'total' | (typeof STAT_NAMES)[number]
+type SortKey = 'rank' | 'name' | 'sex' | 'bloodline' | 'prospect' | 'status' | 'total' | (typeof STAT_NAMES)[number]
 
 export default function AnimalTable({ species, prospectId, onSelectAnimal }: Props): JSX.Element {
   const { data, deleteAnimal } = useAppData()
-  const [sortKey, setSortKey] = useState<SortKey>('total')
+  const [sortKey, setSortKey] = useState<SortKey>('rank')
   const [sortDir, setSortDir] = useState<1 | -1>(-1)
   const [nameFilter, setNameFilter] = useState('')
   const [sexFilter, setSexFilter] = useState<'' | 'Male' | 'Female'>('')
   const [showInactive, setShowInactive] = useState(false)
 
   const animalsBySpecies = data.animals.filter(
-    (a) => a.speciesId === species.id && (!prospectId || a.prospectId === prospectId)
+    (a) => a.speciesId === species.id && matchesProspectFilter(a, prospectId)
   )
   const animalNameById = new Map(data.animals.map((a) => [a.id, a.name]))
   const prospectNameById = new Map(data.prospects.map((p) => [p.id, p.name]))
@@ -34,19 +34,25 @@ export default function AnimalTable({ species, prospectId, onSelectAnimal }: Pro
   const target = computeTargetProfile(scoreConfig)
 
   const rows = useMemo(() => {
-    return animalsBySpecies
+    const visible = animalsBySpecies
       .filter((a) => showInactive || (a.status ?? 'active') === 'active')
       .filter((a) => a.name.toLowerCase().includes(nameFilter.toLowerCase()))
       .filter((a) => !sexFilter || a.sex === sexFilter)
+    const rankById = new Map(
+      [...visible].sort((x, y) => compareAnimalRank(x, y, target)).map((a, i) => [a.id, i + 1])
+    )
+    return visible
       .map((a) => ({
         animal: a,
+        rank: rankById.get(a.id)!,
         status: a.status ?? 'active',
         total: computeTotal(a.stats),
         prospectName: a.prospectId ? prospectNameById.get(a.prospectId) ?? '—' : 'Station'
       }))
       .sort((x, y) => {
         let cmp = 0
-        if (sortKey === 'name') cmp = x.animal.name.localeCompare(y.animal.name)
+        if (sortKey === 'rank') cmp = y.rank - x.rank
+        else if (sortKey === 'name') cmp = x.animal.name.localeCompare(y.animal.name)
         else if (sortKey === 'sex') cmp = x.animal.sex.localeCompare(y.animal.sex)
         else if (sortKey === 'bloodline') cmp = x.animal.bloodline.localeCompare(y.animal.bloodline)
         else if (sortKey === 'prospect') cmp = x.prospectName.localeCompare(y.prospectName)
@@ -79,9 +85,12 @@ export default function AnimalTable({ species, prospectId, onSelectAnimal }: Pro
   }
 
   function handleExport(format: 'json' | 'xml'): void {
-    const prospectLabel = prospectId
-      ? data.prospects.find((p) => p.id === prospectId)?.name ?? 'Unknown Prospect'
-      : 'All Prospects'
+    const prospectLabel =
+      prospectId === null
+        ? 'All Prospects'
+        : prospectId === STATION_FILTER
+          ? 'Station'
+          : data.prospects.find((p) => p.id === prospectId)?.name ?? 'Unknown Prospect'
     const exportRows = buildExportRows(rows.map((r) => r.animal), animalNameById, prospectNameById)
     const content =
       format === 'json'
@@ -135,6 +144,12 @@ export default function AnimalTable({ species, prospectId, onSelectAnimal }: Pro
         <table className="animal-table">
           <thead>
             <tr>
+              <th
+                onClick={() => toggleSort('rank')}
+                title="Favored Bloodline first, then lowest Dump Stat, then highest Total, then Name"
+              >
+                #{sortIndicator('rank')}
+              </th>
               <th onClick={() => toggleSort('name')}>Name{sortIndicator('name')}</th>
               <th onClick={() => toggleSort('sex')}>Sex{sortIndicator('sex')}</th>
               <th>Sire</th>
@@ -143,7 +158,7 @@ export default function AnimalTable({ species, prospectId, onSelectAnimal }: Pro
                 Bloodline{sortIndicator('bloodline')}
               </th>
               <th>Phenotype</th>
-              {!prospectId && (
+              {prospectId === null && (
                 <th onClick={() => toggleSort('prospect')}>Prospect{sortIndicator('prospect')}</th>
               )}
               <th onClick={() => toggleSort('status')}>Status{sortIndicator('status')}</th>
@@ -163,12 +178,13 @@ export default function AnimalTable({ species, prospectId, onSelectAnimal }: Pro
             </tr>
           </thead>
           <tbody>
-            {rows.map(({ animal, status, total, prospectName }) => (
+            {rows.map(({ animal, rank, status, total, prospectName }) => (
               <tr
                 key={animal.id}
                 className={status !== 'active' ? 'inactive-row' : ''}
                 onClick={() => onSelectAnimal(animal.id)}
               >
+                <td>{rank}</td>
                 <td>{animal.name}</td>
                 <td>
                   <SexSymbol sex={animal.sex} />
@@ -182,7 +198,7 @@ export default function AnimalTable({ species, prospectId, onSelectAnimal }: Pro
                   {animal.bloodline}
                 </td>
                 <td>{animal.phenotype ?? 'Base'}</td>
-                {!prospectId && <td>{prospectName}</td>}
+                {prospectId === null && <td>{prospectName}</td>}
                 <td className={`status-cell status-${status}`}>{status}</td>
                 {STAT_NAMES.map((stat) => {
                   const statTarget = target.statTargets[stat]

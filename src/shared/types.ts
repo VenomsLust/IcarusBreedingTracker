@@ -31,7 +31,7 @@ export type Bloodline = (typeof BLOODLINES)[number]
 
 export type Sex = 'Male' | 'Female'
 
-export type AnimalStatus = 'active' | 'retired' | 'deceased'
+export type AnimalStatus = 'active' | 'deceased'
 
 export interface ScoreConfig {
   statWeights: Record<StatName, number>
@@ -65,6 +65,12 @@ export interface Prospect {
   name: string
 }
 
+// Sidebar Prospect selection: null shows every Prospect, STATION_FILTER shows
+// only animals at the Station (stored as prospectId null), and anything else
+// is a Prospect id.
+export const STATION_FILTER = '__station__'
+export type ProspectFilter = string | null
+
 export interface Animal {
   id: string
   speciesId: string
@@ -86,6 +92,17 @@ export interface Animal {
   // file - lets re-imports recognize "this is the same creature" instead of
   // creating a duplicate. Absent for hand-entered animals.
   gameActorId?: number
+}
+
+export function matchesProspectFilter(animal: Animal, filter: ProspectFilter): boolean {
+  if (filter === null) return true
+  return animal.prospectId === prospectIdForFilter(filter)
+}
+
+// The prospectId a filter narrows to - Station and All both map to null
+// (a new animal added under All defaults to the Station).
+export function prospectIdForFilter(filter: ProspectFilter): string | null {
+  return filter === STATION_FILTER ? null : filter
 }
 
 export interface AppData {

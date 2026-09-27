@@ -104,7 +104,8 @@ function backfillBuiltins(data: AppData): AppData {
 
 // Backfills fields added after older save files were written, so files
 // saved before the `prospects`/`prospectId`/`phenotypeBonuses`/`classifications`
-// fields existed still load cleanly.
+// fields existed still load cleanly. The old "retired" status is folded back
+// into "active" - an animal is either living or deceased.
 function normalize(data: AppData): AppData {
   const isLegacyShape =
     !Array.isArray(data.classifications) || (data.species as unknown as LegacySpecies[]).some((s) => 'scoreConfig' in s)
@@ -119,7 +120,11 @@ function normalize(data: AppData): AppData {
       ...c,
       scoreConfig: ensureDumpStat({ ...c.scoreConfig, phenotypeBonuses: c.scoreConfig.phenotypeBonuses ?? {} })
     })),
-    animals: backfilled.animals.map((a) => ({ ...a, prospectId: a.prospectId ?? null }))
+    animals: backfilled.animals.map((a) => ({
+      ...a,
+      prospectId: a.prospectId ?? null,
+      status: (a.status as string) === 'retired' ? 'active' : a.status
+    }))
   }
 }
 

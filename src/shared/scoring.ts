@@ -40,6 +40,24 @@ export function favoredBloodline(target: TargetProfile): Bloodline | null {
   return BLOODLINES.find((b) => target.bloodlineTargets!.has(b)) ?? null
 }
 
+function dumpStatTotal(animal: Animal, target: TargetProfile): number {
+  return STAT_NAMES.reduce((sum, stat) => (target.statTargets[stat] === 0 ? sum + animal.stats[stat] : sum), 0)
+}
+
+// Best-first order for the Animal table: the Classification's favored
+// Bloodline first, then the lowest Dump Stat, then the highest Total (Dump
+// Stat included), then Name. Negative means `a` ranks ahead of `b`.
+export function compareAnimalRank(a: Animal, b: Animal, target: TargetProfile): number {
+  const favoredA = target.bloodlineTargets?.has(a.bloodline) ?? false
+  const favoredB = target.bloodlineTargets?.has(b.bloodline) ?? false
+  if (favoredA !== favoredB) return favoredA ? -1 : 1
+  const dumpDiff = dumpStatTotal(a, target) - dumpStatTotal(b, target)
+  if (dumpDiff !== 0) return dumpDiff
+  const totalDiff = computeTotal(b.stats) - computeTotal(a.stats)
+  if (totalDiff !== 0) return totalDiff
+  return a.name.localeCompare(b.name)
+}
+
 export interface OffspringEstimate {
   stats: Stats
   bloodline: Bloodline
@@ -100,13 +118,11 @@ export interface MatePair {
   realTotal: number
 }
 
-// Retired and deceased animals aren't candidates for breeding.
+// Deceased animals aren't candidates for breeding.
 function filterBreedingPool(animals: Animal[], speciesId: string): Animal[] {
   return animals.filter((animal) => {
     if (animal.speciesId !== speciesId) return false
-    if (animal.status === 'deceased') return false
-    if (animal.status === 'retired') return false
-    return true
+    return animal.status !== 'deceased'
   })
 }
 

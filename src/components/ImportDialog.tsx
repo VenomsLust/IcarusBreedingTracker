@@ -169,7 +169,7 @@ export default function ImportDialog({ parsed, onClose }: Props): JSX.Element {
                   </td>
                   <td>{row.detected.name}</td>
                   <td>{species?.name ?? <em>unmapped</em>}</td>
-                  <td className={`status-cell status-${row.action === 'conflict' ? 'deceased' : row.action === 'add' ? 'active' : 'retired'}`}>
+                  <td className={`status-cell status-${row.action === 'conflict' ? 'deceased' : row.action === 'add' ? 'active' : 'update'}`}>
                     {row.action}
                   </td>
                   <td>

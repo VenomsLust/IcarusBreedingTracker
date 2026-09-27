@@ -1,4 +1,5 @@
-import type { Animal, Classification, Prospect, SpeciesDefinition } from '@shared/types'
+import type { Animal, Classification, Prospect, ProspectFilter, SpeciesDefinition } from '@shared/types'
+import { STATION_FILTER, matchesProspectFilter } from '@shared/types'
 import { findRemovableDeceased } from '@shared/cleanup'
 
 interface Props {
@@ -11,8 +12,8 @@ interface Props {
   onAddClassification: () => void
   onEditClassification: (id: string) => void
   prospects: Prospect[]
-  selectedProspectId: string | null
-  onSelectProspect: (id: string | null) => void
+  selectedProspectId: ProspectFilter
+  onSelectProspect: (filter: ProspectFilter) => void
   onAddProspect: () => void
   onEditProspect: (id: string) => void
   animals: Animal[]
@@ -52,6 +53,12 @@ export default function Sidebar({
           </button>
           <span className="count-badge">{animals.length}</span>
         </li>
+        <li className={selectedProspectId === STATION_FILTER ? 'active' : ''}>
+          <button className="species-name" onClick={() => onSelectProspect(STATION_FILTER)}>
+            Station
+          </button>
+          <span className="count-badge">{animals.filter((a) => a.prospectId === null).length}</span>
+        </li>
         {prospects.map((p) => (
           <li key={p.id} className={p.id === selectedProspectId ? 'active' : ''}>
             <button className="species-name" onClick={() => onSelectProspect(p.id)}>
@@ -74,10 +81,7 @@ export default function Sidebar({
           .sort((a, b) => a.name.localeCompare(b.name))
           .map((s) => {
             const count = animals.filter(
-              (a) =>
-                a.speciesId === s.id &&
-                isActive(a) &&
-                (selectedProspectId === null || a.prospectId === selectedProspectId)
+              (a) => a.speciesId === s.id && isActive(a) && matchesProspectFilter(a, selectedProspectId)
             ).length
             if (count === 0) return null
             return (
