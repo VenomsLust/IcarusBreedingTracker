@@ -41,9 +41,9 @@ export function mapBloodline(lineage: string | null): Bloodline | null {
 // Raw save-file actor class names mapped to the built-in Species name (see
 // BUILTIN_SPECIES_TEMPLATES in types.ts) they belong to, so a fresh import
 // of these common creatures doesn't need manual class-name mapping. Ram and
-// Sheep share one entry: they're the same breeding species, just displayed
-// by in-game sex. Entries are either confirmed against a real save file
-// directly, or cross-referenced from github.com/jodagreyhame/icarus-mount-editor's
+// Sheep (likewise Rooster and Chicken) share one entry: they're the same
+// breeding species, just displayed by in-game sex. Entries are either
+// confirmed against a real save file directly, or cross-referenced from github.com/jodagreyhame/icarus-mount-editor's
 // reverse-engineering notes (which independently agreed with every entry
 // this project had already confirmed first-hand).
 // Extend this as more real class names get confirmed - never guess one in,
@@ -52,6 +52,8 @@ export const KNOWN_CLASS_NAME_SPECIES: Record<string, string> = {
   BP_Tamed_Wolf_C: 'Wolves',
   BP_Tame_Sheep_C: 'Sheep',
   BP_Tame_Ram_C: 'Sheep',
+  BP_Tame_Chicken_C: 'Chickens',
+  BP_Tame_Rooster_C: 'Chickens',
   BP_Tame_Boar_C: 'Wild Boars',
   BP_Tame_Dog_D2_C: 'Dogs',
   BP_Tame_Pig_C: 'Pigs',
