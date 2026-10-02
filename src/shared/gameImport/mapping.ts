@@ -33,8 +33,15 @@ export function mapSex(rawSex: number | null): Sex | null {
   return null
 }
 
+// Internal Lineage values that differ from the in-game display name. Confirmed
+// against a real save: animals shown in-game as Unstable store "Fierce".
+const LINEAGE_ALIASES: Record<string, Bloodline> = {
+  Fierce: 'Unstable'
+}
+
 export function mapBloodline(lineage: string | null): Bloodline | null {
   if (!lineage) return null
+  if (lineage in LINEAGE_ALIASES) return LINEAGE_ALIASES[lineage]
   return (BLOODLINES as readonly string[]).includes(lineage) ? (lineage as Bloodline) : null
 }
 
