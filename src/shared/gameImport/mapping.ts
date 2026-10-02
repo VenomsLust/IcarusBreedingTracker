@@ -68,6 +68,8 @@ export const KNOWN_CLASS_NAME_SPECIES: Record<string, string> = {
   BP_Mount_Raptor_C: 'Raptors',
   BP_Mount_Slinker_C: 'Slinkers',
   BP_Mount_Zebra_C: 'Zebras',
+  // The quest-reward Zebra — the variant actually found in a real save.
+  BP_Mount_Zebra_Quest_C: 'Zebras',
   BP_Mount_Wooly_Zebra_C: 'Woolly Zebras',
   BP_Mount_Horse_Standard_C: 'Horses'
 }
